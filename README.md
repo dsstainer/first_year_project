@@ -12,6 +12,7 @@ you shouldn't have to change the server.ts file
 - run `npm i` (only required the first time you clone it, and whenever dependencies change)
 - when that's finished, run `npm run dev`
 - this should start a server. there are instructions in the terminal for how to use the server
+- you'll know its working when the 3 changes to a 4 on the websockets page
 
 ## building
 
