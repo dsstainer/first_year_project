@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "sourceMap": false,
+        "outDir": "./dist",
+        // "allowJs": true
+    },
+    "files": [
+        "./server.ts",
+        "./websockets.ts",
+    ],
+}

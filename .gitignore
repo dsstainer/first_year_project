@@ -1,3 +1,4 @@
+# default svelte kit stuff
 .DS_Store
 node_modules
 /build
@@ -10,3 +11,7 @@ node_modules
 .output
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# my stuff
+/dist
+/.vscode
