@@ -3,14 +3,31 @@
 
 	const socket = io();
 
-	let x = 3.0;
+	let x = "not connected";
 
 	socket.on('eventFromServer', (message) => {
-		x = 4.0;
+		x = "connected";
+	});
+
+	let messages: string[] = [];
+
+	let data: any;
+
+	socket.on('message', (message) => {
+		messages.push(message);
+		messages = messages;
+	});
+
+	socket.on('datafromthedatabase', (incomingdata) => {
+		data = incomingdata;
 	});
 </script>
 
 <main>
 	<h1>Hello, SvelteKit with WebSocket!</h1>
 	<h2>{x}</h2>
+	<h3>{JSON.stringify(data)}</h3>
+	{#each messages as m}
+		<p>{m}</p>
+	{/each}
 </main>
