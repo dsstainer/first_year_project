@@ -3,6 +3,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 import { type ViteDevServer, defineConfig } from 'vite'
 import { Server } from 'socket.io'
+import { setupConnections } from "./websockets.js";
 
 const webSocketServer = {
 	name: 'webSocketServer',
@@ -11,9 +12,7 @@ const webSocketServer = {
 
 		const io = new Server(server.httpServer)
 
-		io.on('connection', (socket) => {
-			socket.emit('eventFromServer', 'Hello, World 👋')
-		})
+		setupConnections(io);
 	}
 }
 
