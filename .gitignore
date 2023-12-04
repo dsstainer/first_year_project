@@ -17,3 +17,5 @@ vite.config.ts.timestamp-*
 /.vscode
 /pb_data
 /pb_migrations
+
+!/pb_data/data.db
