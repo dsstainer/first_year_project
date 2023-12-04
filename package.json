@@ -2,7 +2,7 @@
 	"name": "first-group-project-sveltekit",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "./pocketbase serve & vite dev",
 		"testbuildandprod": "npm run testbuild && npm run prod",
 		"properbuildandprod": "npm run properbuild && npm run prod",
 		"testbuild": "vite build && tsc --project tsconfig.prod.json && find ./dist -type f -name \"*.js\" -exec sed -i 's|./build/handler.js|./../build/handler.js|g' {} +",
@@ -33,6 +33,7 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-svelte": "^2.30.0",
+		"p5-svelte": "^3.1.2",
 		"prettier": "^3.0.0",
 		"prettier-plugin-svelte": "^3.0.0",
 		"svelte": "^4.2.7",
