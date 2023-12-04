@@ -18,4 +18,5 @@ vite.config.ts.timestamp-*
 /pb_data
 /pb_migrations
 
+
 !/pb_data/data.db

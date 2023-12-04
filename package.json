@@ -8,9 +8,7 @@
 		"testbuild": "vite build && tsc --project tsconfig.prod.json && find ./dist -type f -name \"*.js\" -exec sed -i 's|./build/handler.js|./../build/handler.js|g' {} +",
 		"properbuild": "vite build && tsc --project tsconfig.prod.json && cp -r build dist",
 		"prod": "node dist/server.js",
-		"_comment": {
-			"preview": "vite preview"
-		},
+		"_comment": "\"preview\": \"vite preview\"",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
