@@ -21,6 +21,10 @@
 	socket.on('datafromthedatabase', (incomingdata) => {
 		data = incomingdata;
 	});
+
+	socket.on("error", (e) => {
+		console.error(e);
+	})
 </script>
 
 <main>

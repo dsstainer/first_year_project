@@ -8,12 +8,18 @@ export const setupConnections = (io: Server) => {
         sockets.push(socket);
         socket.emit('eventFromServer', 'hello world');
     });
-    // server sending messages on its own without getting a request from the client
+    //server sending messages on its own without getting a request from the client
     setInterval(async () => {
-        let datafromthedatabase = await pb.collection("testdata").getFullList();
-        for (let socket of sockets) {
-            socket.emit("message", "hello this is a message");
-            socket.emit("datafromthedatabase", datafromthedatabase);
+        try {
+            let datafromthedatabase = await pb.collection("testdata").getFullList();
+            for (let socket of sockets) {
+                socket.emit("message", "hello this is a message");
+                socket.emit("datafromthedatabase", datafromthedatabase);
+            }
+        } catch (e) {
+            for (let socket of sockets) {
+                socket.emit("error", "couldn't get data from the database");
+            }
         }
     }, 1000);
 };

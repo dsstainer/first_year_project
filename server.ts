@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { handler } from './build/handler.js';
+import { handler } from './handler.js';
 import { setupConnections } from './websockets.js';
 
 const app = express();
