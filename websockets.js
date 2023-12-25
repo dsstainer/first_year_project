@@ -9,14 +9,15 @@ const server = createServer(app);
 
 const io = new Server(server);
 
-
 const pb = new PocketBase(process.env.POCKETBASE_URL || 'http://localhost:8090/');
 
-let sockets: any[] = [];
+let sockets = [];
+
 io.on('connection', (socket) => {
     sockets.push(socket);
     socket.emit('eventFromServer', 'hello world');
 });
+
 //server sending messages on its own without getting a request from the client
 setInterval(async () => {
     try {
