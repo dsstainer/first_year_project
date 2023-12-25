@@ -1,11 +1,11 @@
-import type { Server } from 'socket.io';
+import { Server } from 'socket.io';
 import PocketBase from 'pocketbase';
+import { createServer } from 'http';
 
 const express = require("express");
 
 const app = express();
 const server = createServer(app);
-
 
 const io = new Server(server);
 
