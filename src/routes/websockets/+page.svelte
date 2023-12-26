@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { io } from 'socket.io-client';
 
-	const socket = io();
+	const socket = io("ws://localhost:3000");
 
 	let x = "not connected";
 

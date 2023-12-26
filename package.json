@@ -2,17 +2,12 @@
 	"name": "first-group-project-sveltekit",
 	"version": "0.0.1",
 	"scripts": {
+		"startws": "nodemon websockets.js",
+		"startpb": "./pocketbase serve",
+		"startdev": "npm run dev & npm run startws & npm run startpb",
 		"dev": "vite dev",
-		
-			"testbuildandprod": "npm run testbuild && npm run prod",
-			"properbuildandprod": "npm run properbuild && npm run prod",
-			"testbuild": "vite build && tsc --project tsconfig.prod.json && find ./dist -type f -name \"*.js\" -exec sed -i 's|./build/handler.js|./../build/handler.js|g' {} +",
-			"properbuild": "vite build && tsc --project tsconfig.prod.json && cp -r build dist",
-			"preview": "vite preview",
-			"vitebuild": "vite build",
-		
-		"build": "vite build && tsc --project tsconfig.prod.json",
-		"prod": "node build/server.js",
+		"preview": "vite preview",
+		"build": "vite build",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -35,6 +30,7 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-svelte": "^2.30.0",
+		"nodemon": "^3.0.2",
 		"p5-svelte": "^3.1.2",
 		"prettier": "^3.0.0",
 		"prettier-plugin-svelte": "^3.0.0",
@@ -48,11 +44,12 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"cors": "^2.8.5",
 		"dotenv": "^16.3.1",
 		"express": "^4.18.2",
 		"pocketbase": "^0.19.0",
 		"socket.io": "^4.7.2",
 		"socket.io-client": "^4.7.2",
-		"ws": "^8.14.2"
+		"ws": "^8.15.1"
 	}
 }
