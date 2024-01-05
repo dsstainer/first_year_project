@@ -19,7 +19,7 @@ you shouldn't have to change the server.ts file
 
 - you may have to set set a rule in pocketbase to allow acess to the database.
 - To do this, start the pb database with `npm run pb-start` or `npm run all-dev`.
-- Then navifate to the collection (table) you want to use, click settings -> API rules -> set custom rule on eveything.
+- Then navigate to the collection (table) you want to use, click settings -> API rules -> set custom rule on eveything.
 - This remove the need for authentication.
 - We might add authentication into the app in the future.
 
