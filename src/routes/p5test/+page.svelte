@@ -1,29 +1,32 @@
 <script lang="ts">
-	import P5 from 'p5-svelte';
-	let width = 55;
-	let height = 55;
-
-	const sketch = (p5: any) => {
-		p5.setup = () => {
-			p5.createCanvas(400, 400);
-		};
-
-		p5.draw = () => {
-			p5.ellipse(p5.width / 2, p5.height / 2, width, height);
-		};
-	};
+  import Canvas from './Canvas.svelte';
+	// import P5 from 'p5-svelte';
+	// let width = 55;
+	// let height = 55;
+	//
+	// const sketch = (p5: any) => {
+	// 	p5.setup = () => {
+	// 		p5.createCanvas(400, 400);
+	// 	};
+	//
+	// 	p5.draw = () => {
+	// 		p5.ellipse(p5.width / 2, p5.height / 2, width, height);
+	// 	};
+	// };
 </script>
 
-<label>
-	Width
-	<input type="range" bind:value={width} min="100" max="1000" step="0.01" />
-	{width}
-</label>
-
-<label>
-	Height
-	<input type="range" bind:value={height} min="100" max="1000" step="0.01" />
-	{height}
-</label>
-
-<P5 {sketch} />
+<!-- <label> -->
+<!-- 	Width -->
+<!-- 	<input type="range" bind:value={width} min="100" max="1000" step="0.01" /> -->
+<!-- 	{width} -->
+<!-- </label> -->
+<!---->
+<!-- <label> -->
+<!-- 	Height -->
+<!-- 	<input type="range" bind:value={height} min="100" max="1000" step="0.01" /> -->
+<!-- 	{height} -->
+<!-- </label> -->
+<!---->
+<!-- <P5 {sketch} /> -->
+<!---->
+<Canvas width={800} height={600}/>
