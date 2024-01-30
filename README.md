@@ -32,11 +32,11 @@ any websocket stuff can be done in the websocket.ts file
 
 ## group members
 
+- Jonathan Wilson
+
 to get started, can everyone:
 - clone this repo
 - branch to your own branch
-- add your name to the following list
+- add your name to the list above
 - push to your branch on gitlab with `git push origin <your name>`
 - create a merge request (there whould be a button at the top of gitlab after you pushed)
-
-- Jonathan Wilson
