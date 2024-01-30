@@ -1,15 +1,13 @@
+import type { PageServerLoadEvent } from "./$types";
 
-// import type { PageLoad } from "./$types";
-
-import type { PageServerLoad, PageServerLoadEvent } from "./$types";
-
-// import type { LoadEvent } from "@sveltejs/kit";
-
+// an example of how to load dat from the database into the website
 export const load = async ({ locals }: PageServerLoadEvent) => {
     try {
-        let data = await locals.pb.collection("testdata").getFullList();
+        // try and get some data from the data base
+        let data = await locals.pb.collection("users").getFullList();
         return data[0];
     } catch (e) {
-        return { "nodata": "sad" };
+        // default data if there is some error
+        return { "nodata": "oh no" };
     }
 }
