@@ -33,6 +33,7 @@ any websocket stuff can be done in the websocket.ts file
 ## group members
 
 - Jonathan Wilson
+- Thomas Ubhi
 
 to get started, can everyone:
 - clone this repo
