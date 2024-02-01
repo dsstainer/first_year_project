@@ -1,10 +1,8 @@
 # how to use and develop this group project
 
-regular POST and GET requests should be done in the +server.ts files
+regular POST and GET requests can be done in the +server.ts files
 
-any websocket stuff should be done in the websocket.ts file
-
-you shouldn't have to change the server.ts file
+any websocket stuff can be done in the websocket.ts file
 
 ## get started with development
 
@@ -17,14 +15,28 @@ you shouldn't have to change the server.ts file
 
 ## important notes
 
-- you may have to set set a rule in pocketbase to allow acess to the database.
+- if you create a new table, you may have to set set a rule in pocketbase to allow acess to the database.
 - To do this, start the pb database with `npm run pb-start` or `npm run all-dev`.
 - Then navigate to the collection (table) you want to use, click settings -> API rules -> set custom rule on eveything.
-- This remove the need for authentication.
-- We might add authentication into the app in the future.
+- We might add authentication into the app in the future
 
-## building (you can ignore this for now)
+## dev
 
-- `npm run build` will build the website in a build folder which can be previewed with `npm run preview`
-- `npm run ws-start` will run the ws server in a non-development mode
-- `npm run pb-start` will run the pb server (same as development)
+- create your branch with `git branch <your name>`
+- please make changes on your branch
+- then push with `git push origin <your name>`
+- once you've finished a page/feature you can click on the create merge request button
+- make sure to uncheck "delete source branch"
+- create the merge request and get someone else to check it if its a big change
+- if you want to update your local main branch to the one on gitlab you can do `git pull` when on your local main branch
+
+## group members
+
+- Jonathan Wilson
+
+to get started, can everyone:
+- clone this repo
+- branch to your own branch
+- add your name to the list above
+- push to your branch on gitlab with `git push origin <your name>`
+- create a merge request (there whould be a button at the top of gitlab after you pushed)

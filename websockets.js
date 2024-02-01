@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
 //server sending messages on its own without getting a request from the client
 setInterval(async () => {
     try {
-        let datafromthedatabase = await pb.collection("testdata").getFullList();
+        let datafromthedatabase = await pb.collection("users").getFullList();
         for (let socket of sockets) {
             socket.emit("message", "hello this is a message");
             socket.emit("datafromthedatabase", datafromthedatabase);
