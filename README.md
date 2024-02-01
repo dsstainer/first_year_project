@@ -36,6 +36,7 @@ any websocket stuff can be done in the websocket.ts file
 - Thomas Ubhi
 - Jiaxing Zheng
 - abdulrahman bamoukrah
+- Yuming Bai
 
 to get started, can everyone:
 - clone this repo
