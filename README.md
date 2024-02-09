@@ -4,6 +4,8 @@ regular POST and GET requests can be done in the +server.ts files
 
 any websocket stuff can be done in the websocket.ts file
 
+DON'T PUSH THE DATABASE
+
 ## get started with development
 
 - clone this repo
