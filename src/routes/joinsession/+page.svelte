@@ -5,7 +5,7 @@
 	</label>
 	<label>
 		Username
-		<input name="username" type="text">
+		<input name="nickname" type="text">
 	</label>
 	<button>Log in</button>
 </form>
