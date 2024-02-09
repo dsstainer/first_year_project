@@ -1,15 +1,14 @@
-<script>
+<script lang="ts">
 	export let data;
-	function createFormLink(form) {
+	export let form;
+	function createFormLink(formData: any) {
 		let url = "/session";
-		if (form == undefined) {
+		if (formData == undefined) {
 			return undefined;
 		}
-		let sps = new URLSearchParams();
-		sps.append("id", form.id);
-		return url + "?" + sps.toString();
+		return url + "/" + formData.id;
 	}
-	$: formLink = createFormLink(data.response);
+	$: formLink = createFormLink(form);
 </script>
 
 <form method="POST">
@@ -24,9 +23,9 @@
 	<button>Log in</button>
 </form>
 
-{#if formLink != undefined}
+{#if form != undefined}
 	<p>User created!</p>
-	<p>User Id: {data.response.id}</p>
+	<p>User Id: {form.id}</p>
 	<p>Link: <a href={formLink}>{formLink}</a> <button on:click={() => {
 		navigator.clipboard.writeText(window.location.host + formLink);
 	}}>Copy Link</button></p>

@@ -4,7 +4,6 @@ export async function load({ params, url }) {
             sessionId: url.searchParams.get("sessionId"),
         }
     };
-    // return { lang, q };
 }
 
 import type { Actions } from './$types.js';
@@ -20,7 +19,8 @@ function reconstructFormData(formData: any): any {
 export const actions: Actions = {
 	default: async (event: any) => {
         const formData = reconstructFormData(await event.request.formData());
-		const record = await event.locals.pb.collection("users").create({session_id: formData.sessionId, nickname: formData.nickname});
+        console.log(formData);
+		const record = await event.locals.pb.collection("users").create({nickname: formData.nickname, session_id: formData.sessionId});
 		return record;
 	}
 };
