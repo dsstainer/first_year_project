@@ -1,7 +1,11 @@
+<script>
+	export let data;
+
+</script>
 <form method="POST">
 	<label>
 		Session ID
-		<input name="session_id" type="number">
+		<input bind:value={data.prefill.sessionId} type="text" name="sessionId">
 	</label>
 	<label>
 		Username
