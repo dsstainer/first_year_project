@@ -17,7 +17,7 @@
 		<input bind:value={data.prefill.sessionId} type="text" name="sessionId">
 	</label>
 	<label>
-		Username
+		Nickname
 		<input name="nickname" type="text">
 	</label>
 	<button>Log in</button>

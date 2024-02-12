@@ -13,7 +13,7 @@
 			<li>
 				<p>id: {session.id}</p>
 				<p>state: {session.state}</p>
-				<p><a href={`/joinsession?id=${session.id}`}>link</a></p>
+				<p><a href={`/joinsession?sessionId=${session.id}`}>link</a></p>
 			</li>
 		{/each}
 	</ul>
