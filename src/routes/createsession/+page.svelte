@@ -2,11 +2,12 @@
 	export let form;
 	function createFormLink(form: any) {
 		let url = "/joinsession";
+		console.log(url);
 		if (form == undefined) {
 			return url;
 		}
 		let sps = new URLSearchParams();
-		sps.append("id", form.id);
+		sps.append("sessionId", form.id);
 		return url + "?" + sps.toString();
 	}
 	$: formLink = createFormLink(form);
