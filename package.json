@@ -4,12 +4,9 @@
 	"scripts": {
 		"ws-start": "node websockets.js",
 		"pb-start": "./pocketbase serve",
-
 		"ws-dev": "nodemon websockets.js",
 		"svelte-dev": "vite dev",
-
 		"all-dev": "npm run svelte-dev & npm run ws-dev & npm run pb-start",
-
 		"preview": "vite preview",
 		"build": "vite build",
 		"test": "npm run test:integration && npm run test:unit",
