@@ -10,6 +10,14 @@
 	let prompt: string;
 	let error: any;
 	let state = 'waiting';
+	let getImageBase64: Function;
+	function setGetImageBase64(newGetImageBase64: Function) {
+		getImageBase64 = newGetImageBase64;
+	}
+
+	let submitImage = () => {
+		console.error("can't submit image until sockets are setup");
+	};
 
 	onMount(() => {
 		const socket = io('http://localhost:3000');
@@ -21,7 +29,6 @@
 		});
 
 		socket.on('stateChange', (stateChange) => {
-			console.log('sdfs');
 			if (stateChange.newState == 'drawing') {
 				state = 'drawing';
 				prompt = stateChange.prompt;
@@ -31,6 +38,10 @@
 		socket.on('error', (incomingError) => {
 			error = incomingError;
 		});
+
+		submitImage = () => {
+			socket.emit("image", getImageBase64());
+		}
 		// const events = new EventSource("http://localhost:3000/subscribe");
 		// // const events = new EventSource(env.PUBLIC_WS_URL as string);
 
@@ -72,8 +83,11 @@
 
 {#if state == 'waiting'}
 	<Waiting />
-{:else if state == "drawing"}
-	<Drawing />
+{:else if state == 'drawing'}
+	<Drawing {setGetImageBase64} />
+	<button
+		on:click={submitImage}>Submit Image</button
+	>
 {:else}
 	<h1>Undefined State</h1>
 {/if}

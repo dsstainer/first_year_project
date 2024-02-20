@@ -1,20 +1,34 @@
 <script lang="ts">
-	import P5 from 'p5-svelte';
+	import P5, { type p5 } from 'p5-svelte';
 
+	// dimensions of canvas
 	export let width: number;
 	export let height: number;
 
+	export let setGetImageBase64: Function;
+
+	// ellipse, line, brush, etc
 	let paintMode = '';
+	// paint options
 	let brushWidth = 10;
 	let colour = '#000000';
 
-	const sketch = (p5: any) => {
+	const sketch = (p5: p5) => {
+		// the extra stuf on top of the image (like the ellipse, line or brush preview)
 		let previewBuffer: any;
+		// the actual image that has been drawn
 		let buffer: any;
+
+		setGetImageBase64(() => {
+			return buffer.canvas.toDataURL();
+		});
+
 		p5.setup = () => {
 			p5.createCanvas(width, height);
 			buffer = p5.createGraphics(width, height);
+			// image has white background initially
 			buffer.background(255);
+			// preview buffer has transparent background as it is an overlay
 			previewBuffer = p5.createGraphics(width, height);
 		};
 
@@ -48,13 +62,17 @@
 <h3>extra painting settings</h3>
 <!-- brush width -->
 {#if ['brush', 'line', 'ellipse'].includes(paintMode)}
-	<label for="bushwidth">brush width</label>
-	<input type="range" id="brushwidth" bind:value={brushWidth} />
+	<label for="bushwidth"
+		>brush width
+		<input type="range" id="brushwidth" bind:value={brushWidth} />
+	</label>
 {/if}
 <!-- colour -->
 {#if ['brush', 'fill'].includes(paintMode)}
-	<label for="colour">colour</label>
-	<input type="color" id="colour" bind:value={colour} />
+	<label for="colour"
+		>colour
+		<input type="color" id="colour" bind:value={colour} />
+	</label>
 {/if}
 
 <!-- some other extra setting -->

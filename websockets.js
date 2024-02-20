@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from "fs/promises";
 import bodyParser from 'body-parser';
+import base64Img from 'base64-img';
 
 import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
@@ -100,6 +101,18 @@ io.on('connection', (socket) => {
                 userInSessionSocket.emit("stateChange", { newState: "drawing", prompt: newRandomPrompt });
             }
         }
+
+        socket.on("image", (imageBase64) => {
+            // todo: save image to database instead of to a file
+            // todo: either as blob, jbod, base64, pb image type
+            base64Img.img(imageBase64, './tmp', `image-${Date.now()}`, (err, filepath) => {
+                if (err) {
+                    console.error('Error saving the image:', err);
+                } else {
+                    console.log('Image saved successfully at', filepath);
+                }
+            });
+        })
     });
 
     // when the client disconnects
