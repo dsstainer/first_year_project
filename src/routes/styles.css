@@ -25,3 +25,13 @@ canvas {
 	border-radius: 8px;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
+button {
+	cursor: pointer;
+	padding: 10px 15px;
+	border: none;
+	background-color: #007bff;
+	color: white;
+	border-radius: 5px;
+	font-size: 16px;
+	transition: background-color 0.3s;
+}
