@@ -15,8 +15,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const server = createServer(app);
 
-// app.get('/status', (request, response) => response.json({ clients: clients.length }));
-
 const io = new Server(server
     , {
         cors: {
@@ -28,57 +26,29 @@ const io = new Server(server
 
 const pb = new PocketBase(process.env.POCKETBASE_URL || 'http://localhost:8090/');
 
+const PROMPTS = (await fs.readFile("prompts.txt", "utf-8")).split("\n");
 
-// let clients = [];
-// let facts = [];
+function randomPrompt() {
+    return PROMPTS[Math.floor(Math.random() * PROMPTS.length)]
+}
 
-
-// const connectedMessage = () => `
-// event: connected
-// data: You are connected!
-
-// `;
-
-
-// app.get("/subscribe", (req, res) => {
-//     console.log("sub")
-//     const headers = {
-//         'Content-Type': 'text/event-stream',
-//         'Connection': 'keep-alive',
-//         'Cache-Control': 'no-cache'
-//     };
-//     res.writeHead(200, headers);
-
-//     let counter = 0;
-
-//     res.write(connectedMessage());
-//     counter += 1;
-
-//     // Send a subsequent message every five seconds
-//     setInterval(() => {
-//         res.write('event: message\n');
-//         res.write(`data: ${new Date().toLocaleString()}\n\n`);
-//         // res.write(`id: ${counter}\n\n`);
-//         counter += 1;
-//     }, 1000);
-
-//     // Close the connection when the client disconnects
-//     req.on('close', () => {
-//         console.log("close");
-//         res.end('OK')
-//     })
-// });
-
-
-// sockets that have been created from new users that have not been assigned to a session yet
-// let unorganisedSockets = new Set();
-// // organised users in their sessions
-// let users = new WeakMap();
-// let sessions = {};
-
-let prompts = (await fs.readFile("prompts.txt", "utf-8")).split("\n");
-
+// these two should contain the same items most of the time
+// sockets id just for debugging
+/// userSockets is what I actually use
 let sockets = [];
+let userSockets = {};
+
+const VERBOSE_CONSOLE_ERRORS = true;
+
+function socketError(error, socket, socketErrorMessage) {
+    const simpleAutoErrorMessage = error.message.split("\n")[0];
+    const consoleErrorMessage = VERBOSE_CONSOLE_ERRORS ? error : simpleAutoErrorMessage
+    const socketErrormessage = socketErrorMessage || simpleAutoErrorMessage;
+    console.log('\x1b[36m%s\x1b[0m', `Socket Error: ${socketErrorMessage}`);
+    console.error(consoleErrorMessage);
+    console.log('\x1b[36m%s\x1b[0m', "-------------");
+    socket.emit("error", { message: socketErrorMessage });
+}
 
 // when a connection is made
 io.on('connection', (socket) => {
@@ -91,22 +61,44 @@ io.on('connection', (socket) => {
     // when the client sends the userId
     socket.on("userId", async ({ userId }) => {
         // get the user's record from the database
+        let user;
         try {
-            const user = await pb.collection("users").getFirstListItem(`id = ${userId}`);
+            user = await pb.collection("users").getFirstListItem(`id = "${userId}"`);
         } catch (e) {
-            socket.emit("error", { message: "user id not in database" });
+            socketError(e, socket, "user id not in database");
+            return;
         }
+        const sessionId = user.session_id;
+        // add the socket to the users -> sockets map
+        userSockets[userId] = socket;
         // use the sessionId of that user to get a list of all the users in that session
+        let usersInSession;
         try {
-            let usersInSession = await pb.collection("users").getFullList({
-                filter: `session_id = ${user.session_id}`,
+            usersInSession = await pb.collection("users").getFullList({
+                filter: `session_id = "${sessionId}"`,
             });
         } catch (e) {
-            socket.emit("error", { message: "can't get users in session" });
+            socketError(e, socket, "can't get users in session");
+            return;
         }
         // if the number of users in that session is 4 or more
         if (usersInSession.length >= 4) {
-
+            console.log("updating session to drawing");
+            // change state to drawing and assign a prompt
+            const newRandomPrompt = randomPrompt();
+            try {
+                await pb.collection("sessions").update(sessionId, { prompt: newRandomPrompt, state: "drawing" });
+            } catch (e) {
+                socketError(e, socket, "can't update session");
+            }
+            // sending out messages to each user in the session
+            for (const userInSession of usersInSession) {
+                // get the user's socket
+                const userInSessionSocket = userSockets[userInSession.id];
+                // only if the socket actually exists
+                if (userInSessionSocket == undefined) continue;
+                userInSessionSocket.emit("stateChange", { newState: "drawing", prompt: newRandomPrompt });
+            }
         }
     });
 
@@ -116,6 +108,7 @@ io.on('connection', (socket) => {
         console.log(`socket disconnected - num sockets connected: ${sockets.length}`);
     });
 });
+
 // console.log(socket.client.conn);
 // add the newly created socket to the array
 // unorganisedSockets.add(socket);
