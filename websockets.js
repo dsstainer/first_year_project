@@ -85,11 +85,32 @@ io.on('connection', (socket) => {
     sockets.push(socket);
     console.log(`socket connected - num sockets connected: ${sockets.length}`);
 
-    socket.on("userId", ({ userId }) => {
-        
+    // let the client know that the connection is ok
+    socket.emit("connectionOk");
+
+    // when the client sends the userId
+    socket.on("userId", async ({ userId }) => {
+        // get the user's record from the database
+        try {
+            const user = await pb.collection("users").getFirstListItem(`id = ${userId}`);
+        } catch (e) {
+            socket.emit("error", { message: "user id not in database" });
+        }
+        // use the sessionId of that user to get a list of all the users in that session
+        try {
+            let usersInSession = await pb.collection("users").getFullList({
+                filter: `session_id = ${user.session_id}`,
+            });
+        } catch (e) {
+            socket.emit("error", { message: "can't get users in session" });
+        }
+        // if the number of users in that session is 4 or more
+        if (usersInSession.length >= 4) {
+
+        }
     });
 
-    //
+    // when the client disconnects
     socket.on("disconnect", () => {
         sockets.splice(sockets.indexOf(socket), 1);
         console.log(`socket disconnected - num sockets connected: ${sockets.length}`);
