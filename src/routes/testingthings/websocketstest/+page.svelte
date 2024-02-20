@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { env } from '$env/dynamic/public';
 	import { io } from 'socket.io-client';
 
@@ -35,4 +35,4 @@
 	{#each messages as m}
 		<p>{m}</p>
 	{/each}
-</main>
+</main> -->
