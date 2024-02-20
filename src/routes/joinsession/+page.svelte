@@ -13,17 +13,7 @@
 	$: formLink = createFormLink(form);
   </script>
   
-  <style>
-	.container {
-	  max-width: 400px;
-	  margin: 20px auto;
-	  padding: 20px;
-	  border: 1px solid #ccc;
-	  border-radius: 8px;
-	  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	}
-  
-  </style>
+ 
   
   <div class="container">
 	<header>
