@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { env } from '$env/dynamic/public';
 	import { io } from 'socket.io-client';
 
@@ -19,4 +19,4 @@
 <main>
 	<h1>Hello, SvelteKit with WebSocket!</h1>
 	<h2>{x}</h2>
-</main>
+</main> -->
