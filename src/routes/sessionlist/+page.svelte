@@ -25,7 +25,11 @@
 			<li>
 				<p>Session ID: {session.id}<br>
 					Session State: {session.state}<br>
-					<a href={`/joinsession?sessionId=${session.id}`}>Press This To Join Session</a></p>
+					<a href={`/joinsession?sessionId=${session.id}`}>Press This To Join Session</a><br>
+				<button on:click={() => {
+						navigator.clipboard.writeText(window.location.host + `/joinsession?sessionId=${session.id}`);}}>
+					Copy Link
+				</button></p>
 				<style>
 					p {
 						border-width:3px; 
