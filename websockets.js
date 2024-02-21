@@ -85,36 +85,52 @@ io.on('connection', (socket) => {
         // if the number of users in that session is 4 or more
         if (usersInSession.length >= 4) {
             console.log("updating session to drawing");
-            // change state to drawing and assign a prompt
-            const newRandomPrompt = randomPrompt();
+            let session;
             try {
-                await pb.collection("sessions").update(sessionId, { prompt: newRandomPrompt, state: "drawing" });
+                session = await pb.collection("sessions").getFirstListItem(`id = "${sessionId}"`);
             } catch (e) {
-                socketError(e, socket, "can't update session");
+                socketError(e, socket, "cannot get session from database");
+                return;
             }
-            // sending out messages to each user in the session
+            // change state to drawing
+            if (session.state == "waiting") {
+                session.state = "drawing";
+                try {
+                    await pb.collection("sessions").update(sessionId, { state: "drawing" });
+                } catch (e) {
+                    socketError(e, socket, "can't update session state to drawing");
+                }
+            }
+            // assign a new prompt if it doesn't already have a prompt
+            if (session.prompt == "") {
+                const newRandomPrompt = randomPrompt();
+                session.prompt = newRandomPrompt;
+                try {
+                    await pb.collection("sessions").update(sessionId, { prompt: newRandomPrompt, state: "drawing" });
+                } catch (e) {
+                    socketError(e, socket, "can't update session");
+                }
+            }
+            // sending out a message to each user in the session
             for (const userInSession of usersInSession) {
                 // get the user's socket
                 const userInSessionSocket = userSockets[userInSession.id];
                 // only if the socket actually exists
                 if (userInSessionSocket == undefined) continue;
-                userInSessionSocket.emit("stateChange", { newState: "drawing", prompt: newRandomPrompt });
+                userInSessionSocket.emit("stateChange", { newState: session.state, prompt: session.prompt });
             }
         }
-
-        socket.on("image", (imageBase64) => {
-            // todo: save image to database instead of to a file
-            // todo: either as blob, jbod, base64, pb image type
-            base64Img.img(imageBase64, './tmp', `image-${Date.now()}`, (err, filepath) => {
-                if (err) {
-                    console.error('Error saving the image:', err);
-                } else {
-                    console.log('Image saved successfully at', filepath);
-                }
-            });
-        })
+        // when the user submits an image
+        socket.on("image", async (imageBase64) => {
+            console.log("saving image");
+            // save image to database
+            try {
+                await pb.collection("users").update(userId, { image: imageBase64 });
+            } catch (e) {
+                socketError(e, socket, "cannot save image to database");
+            }
+        });
     });
-
     // when the client disconnects
     socket.on("disconnect", () => {
         sockets.splice(sockets.indexOf(socket), 1);
