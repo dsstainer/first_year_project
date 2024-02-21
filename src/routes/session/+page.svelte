@@ -1,1 +1,0 @@
-<p>Joined session!</p>
