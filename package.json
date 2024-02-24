@@ -2,9 +2,9 @@
 	"name": "first-group-project-sveltekit",
 	"version": "0.0.1",
 	"scripts": {
-		"ws-start": "node websockets.js",
+		"ws-start": "node websockets/server.js",
 		"pb-start": "./pocketbase serve",
-		"ws-dev": "nodemon websockets.js",
+		"ws-dev": "nodemon websockets/server.js",
 		"svelte-dev": "vite dev",
 		"all-dev": "npm run svelte-dev & npm run ws-dev & npm run pb-start",
 		"preview": "vite preview",

@@ -1,0 +1,13 @@
+socket message "stateChange" will contain data:
+
+{
+    newState: "ended",
+    votes: {
+        userId: string: {
+            nickname: string,
+            votes: number (number of votes for this user)
+        }, ...
+    }
+}
+
+- Jonathan
