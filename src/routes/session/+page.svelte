@@ -1,1 +1,1 @@
-<p>waiting...</p>
+<p>error, no userId specified</p>
