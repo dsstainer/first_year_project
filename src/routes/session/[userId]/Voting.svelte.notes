@@ -1,0 +1,12 @@
+socket message "stateChange" will contain data:
+
+{
+    newState: "voting",
+    images: {
+        userId: string,
+        userNickname: string,
+        image: string (base64 image data)
+    }
+}
+
+- Jonathan

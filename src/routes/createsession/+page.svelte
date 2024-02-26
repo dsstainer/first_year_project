@@ -6,7 +6,7 @@
 			return url;
 		}
 		let sps = new URLSearchParams();
-		sps.append("id", form.id);
+		sps.append("sessionId", form.id);
 		return url + "?" + sps.toString();
 	}
 	$: formLink = createFormLink(form);
