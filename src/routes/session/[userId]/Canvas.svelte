@@ -62,12 +62,51 @@
 		};
 
 		p5.mousePressed = () => {
-			if (paintMode == 'fill') {
-				let positions = [[Math.round(p5.mouseX), Math.round(p5.mouseY)]];
-				for (let i = 0; i < 100; i++) {
-					let position = positions[0];
-					let targetColour = buffer.get(positions[0][0], positions[0][1]);
+			const speed = 1;
+			if (
+				paintMode == 'fill' &&
+				!(p5.mouseX < 0 || p5.mouseY < 0 || p5.mouseX >= buffer.width || p5.mouseY >= buffer.height)
+			) {
+				buffer.loadPixels();
+				let position = ((Math.floor(p5.mouseY) * buffer.width) + Math.floor(p5.mouseX));
+				let originR = buffer.pixels[position * 4];
+				let originG = buffer.pixels[position * 4 + 1];
+				let originB = buffer.pixels[position * 4 + 2];
+				let originA = buffer.pixels[position * 4 + 3];
+				let positions = [position];
+				let filledPositions = new Set();
+				let colourp5 = p5.color(colour);
+				for (let i = 0; i < 100 * buffer.width * buffer.height; i++) {
+					let position = positions.shift();
+					if (position == undefined) {
+						break;
+					}
+					if (
+						position % buffer.width == 0 ||
+						position % buffer.width == buffer.width - 1 ||
+						position < buffer.width ||
+						position >= (buffer.height - 1) * buffer.width
+					) {
+						continue;
+					}
+					if (filledPositions.has(position)) {
+						continue;
+					}
+					let r = buffer.pixels[position * 4];
+					let g = buffer.pixels[position * 4 + 1];
+					let b = buffer.pixels[position * 4 + 2];
+					let a = buffer.pixels[position * 4 + 3];
+					if (!(r == originR && g == originG && b == originB && a == originA)) {
+						continue;
+					}
+					buffer.set(position % buffer.width, Math.floor(position / buffer.width), colourp5);
+					positions.push(position - 1);
+					positions.push(position + 1);
+					positions.push(position - buffer.width);
+					positions.push(position + buffer.width);
+					filledPositions.add(position);
 				}
+				buffer.updatePixels();
 			}
 		};
 	};
