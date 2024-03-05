@@ -70,6 +70,7 @@ io.on('connection', (socket) => {
             // save image to database
             try {
                 await pb.collection("users").update(userId, { image: imageBase64 });
+
             } catch (e) {
                 socketError(socket, getErrorMessages(e, "cannot save image to database"));
             }
@@ -86,6 +87,8 @@ io.on('connection', (socket) => {
             // if all the users in the session have submitted an image
             if (usersInSession.every((userInSession) => userInSession.image != "")) {
                 // get some info from each user to send to all the users
+                console.log('all images submitted');
+                //todo: update session state in database
                 // (image, user id, user name, etc)
                 const imageInfoToSend = usersInSession.map((userInSession) => ({
                     userId: userInSession.id,
@@ -94,7 +97,9 @@ io.on('connection', (socket) => {
                 }));
                 // send the image data to each user
                 for (const userInSession of usersInSession) {
-                    userSockets[userInSession.id].emit("stateChange", { newState: "voting", images: imageInfoToSend });
+                    if(userSockets[userInSession.id] != null){
+                        userSockets[userInSession.id].emit("stateChange", { newState: "voting", images: imageInfoToSend });
+                    }
                 }
             }
         });
@@ -128,7 +133,10 @@ io.on('connection', (socket) => {
                 }
                 // send the image data to each user
                 for (const userInSession of usersInSession) {
-                    userSockets[userInSession.id].emit("stateChange", { newState: "ended", votes: votesForUsers });
+                    if(userSockets[userInSession.id] != null){
+                        userSockets[userInSession.id].emit("stateChange", { newState: "ended", votes: votesForUsers });
+                    }
+                    
                 }
             }
         });
@@ -164,7 +172,7 @@ async function checkUpdateSessionToDrawing(sessionId, socket, userSockets) {
         return;
     }
     // guard clause such that if there's not enough users then the state will not change
-    if (usersInSession < 4) {
+    if (usersInSession.length < 4) {
         return;
     }
     // no we know the state should be updated
