@@ -31,7 +31,6 @@ function getBackgroundColor(id){
         return colors[4];
     }
 
-    console.log(id.charCodeAt(0))
     return color;
 }
 
@@ -41,6 +40,5 @@ function addColorsToSession(data){
         session.color = getBackgroundColor(session.id);
         result.push(session);
     });
-    console.log(result);
     return result;
 }
