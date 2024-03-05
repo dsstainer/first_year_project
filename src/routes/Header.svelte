@@ -33,7 +33,7 @@
 
 	nav {
 		display: flex;
-		background-color: rgb(60, 60, 60);
+		background-color: #59069A;
 		text-align: center;
 		justify-content: space-between;
 	}
@@ -43,18 +43,17 @@
 		text-align: center;
 		padding: 0;
 		margin: 0;
-		height: 5em;
+		height: 4em;
 		display: flex;
 		list-style: none;
-		background-color:  rgb(60, 60, 60);	
 	}
 
 	ul.left-links li {
-    display: inline;
+	    display: inline;
     }
 
 	ul.right-links li {
-    display: inline;
+	    display: inline;
 	}
 
 	li {
@@ -64,15 +63,11 @@
 		position: relative;
 	}
 
-	li:hover{
-		text-decoration: white underline;
-		
-		background-color: rgb(50, 50, 50)
-	}
 
 	nav a {
 		display: flex;
 		height: 100%;
+		color:#E0D250;
 		align-items: center;
 	}
 
@@ -81,13 +76,22 @@
 		color: whitesmoke
 	}
 
-	li.active {
-		background-color: #63C5DA;
+	li:hover{
+		text-decoration-color:#E0D250;
+		text-decoration-line:underline;
+		
 	}
 
-	li.active a:hover {
-        text-decoration: none;
-        background-color: #63C5DA;
-    }
+	li.active {
+		background-color: #B57BFF;
+	}
+	li.active:hover{
+
+		text-decoration-color:#FFFFFF;
+	}
+	li.active a {
+		color:#FFFFFF;
+	}
+
 
 </style>
