@@ -10,7 +10,7 @@
 		<p>Choose a session to join</p>
 	</div>
 	<div class='page-break'></div>
-	{#if data.sessions == null}
+	{#if data.sessions == null || data.sessions.length == 0}
 	<div class='page-content'>
 		<p>No sessions available at the moment</p>
 	</div>
