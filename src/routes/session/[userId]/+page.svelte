@@ -5,12 +5,14 @@
 	import { io } from 'socket.io-client';
 	import Waiting from './Waiting.svelte';
 	import Drawing from './Drawing.svelte';
+	import Ended from './Ended.svelte';
 
 	let wsConnected = false;
 	let prompt: string;
 	let error: any;
 	let state = 'waiting';
 	let getImageBase64: Function;
+
 	function setGetImageBase64(newGetImageBase64: Function) {
 		getImageBase64 = newGetImageBase64;
 	}
@@ -19,11 +21,12 @@
 		console.error("can't submit image until sockets are setup");
 	};
 
-	onMount(() => {
+	function setupSocket() {
 		const socket = io('http://localhost:3000');
 
 		socket.on('connectionOk', () => {
 			wsConnected = true;
+			console.log("connect");
 
 			socket.emit('userId', { userId: data.userId });
 		});
@@ -32,10 +35,8 @@
 			if (stateChange.newState == 'drawing') {
 				state = 'drawing';
 				prompt = stateChange.prompt;
-			}
-			else if(stateChange.newState == 'voting'){
+			} else if (stateChange.newState == 'voting') {
 				state = 'voting';
-
 			}
 		});
 
@@ -43,38 +44,19 @@
 			error = incomingError;
 		});
 
+		socket.on('disconnect', () => {
+			console.log("disconnect");
+			setupSocket();
+		});
+
 		submitImage = () => {
-			socket.emit("image", getImageBase64());
-		}
-		// const events = new EventSource("http://localhost:3000/subscribe");
-		// // const events = new EventSource(env.PUBLIC_WS_URL as string);
+			socket.emit('image', getImageBase64());
+		};
+	}
 
-		// events.addEventListener("connected", () => {
-		// 	sseConnected = true;
-		// });
-
-		// events.addEventListener("message", ({data}) => {
-		// 	prompt = data;
-		// });
+	onMount(() => {
+		setupSocket();
 	});
-
-	// events.onmessage = (event) => {
-	// 	console.log(JSON.parse(event.data));
-	// };
-
-	// socket.on('connectionOk', () => {
-	// 	wsConnected = true;
-	// 	socket.emit("ids", data.userId);
-	// });
-
-	// socket.on("disconnect", () => {
-	// 	wsConnected = false;
-	// 	// socket.emit("ids", data.userId);
-	// });
-
-	// socket.on("startDrawing", (startDrawingData) => {
-	// 	prompt = startDrawingData.prompt;
-	// });
 </script>
 
 {#if error != undefined}
@@ -89,13 +71,11 @@
 	<Waiting />
 {:else if state == 'drawing'}
 	<Drawing {setGetImageBase64} />
-	<button
-		on:click={submitImage}>Submit Image</button
-	>
-{:else if state=='voting'}
+	<button on:click={submitImage}>Submit Image</button>
+{:else if state == 'voting'}
 	<p>voting...</p>
-{:else if state=='ended'}
-	<p>ended</p>
+{:else if state == 'ended'}
+	<Ended />
 {:else}
 	<h1>Undefined State</h1>
 {/if}

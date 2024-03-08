@@ -7,6 +7,7 @@ import fs from "fs/promises";
 import bodyParser from 'body-parser';
 import base64Img from 'base64-img';
 import { getErrorMessages, socketError, usersError } from "./errors.js";
+import TwoWayMap from './twowaymap.js';
 
 import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
@@ -36,16 +37,11 @@ function randomPrompt() {
     return PROMPTS[Math.floor(Math.random() * PROMPTS.length)]
 }
 
-// these two should contain the same items most of the time
-// the sockets array is just for debugging
-let sockets = [];
 // userSockets is what I actually use
-let userSockets = {};
+let userSockets = new TwoWayMap();
 
 // when a connection is made
 io.on('connection', (socket) => {
-    sockets.push(socket);
-    console.log(`socket connected - num sockets connected: ${sockets.length}`);
 
     // let the client know that the connection is ok
     socket.emit("connectionOk");
@@ -61,7 +57,8 @@ io.on('connection', (socket) => {
             return;
         }
         // add user to the user sockets once we know the user actually exists
-        userSockets[userId] = socket;
+        userSockets.set(userId, socket);
+        console.log(`socket connected and registered - num sockets connected: ${userSockets.count()}`);
         // if the number of users in that session is 4 or more the update the session
         checkUpdateSessionToDrawing(sessionId, socket, userSockets);
         // when the user submits an image
@@ -88,7 +85,23 @@ io.on('connection', (socket) => {
             if (usersInSession.every((userInSession) => userInSession.image != "")) {
                 // get some info from each user to send to all the users
                 console.log('all images submitted');
-                //todo: update session state in database
+                // get the session that the user is in
+                let session;
+                try {
+                    session = await pb.collection("sessions").getFirstListItem(`id = "${sessionId}"`);
+                } catch (e) {
+                    socketError(socket, getErrorMessages(e, "cannot get session from database"));
+                    return;
+                }
+                // update session state
+                if (session.state == "drawing") {
+                    session.state = "voting";
+                    try {
+                        await pb.collection("sessions").update(session.id, { state: "voting" });
+                    } catch (e) {
+                        usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
+                    }
+                }
                 // (image, user id, user name, etc)
                 const imageInfoToSend = usersInSession.map((userInSession) => ({
                     userId: userInSession.id,
@@ -97,8 +110,9 @@ io.on('connection', (socket) => {
                 }));
                 // send the image data to each user
                 for (const userInSession of usersInSession) {
-                    if(userSockets[userInSession.id] != null){
-                        userSockets[userInSession.id].emit("stateChange", { newState: "voting", images: imageInfoToSend });
+                    const userInSessionSocket = userSockets.getForward(userInSession.id);
+                    if (userInSessionSocket != null) {
+                        userInSessionSocket.emit("stateChange", { newState: "voting", images: imageInfoToSend });
                     }
                 }
             }
@@ -133,18 +147,22 @@ io.on('connection', (socket) => {
                 }
                 // send the image data to each user
                 for (const userInSession of usersInSession) {
-                    if(userSockets[userInSession.id] != null){
-                        userSockets[userInSession.id].emit("stateChange", { newState: "ended", votes: votesForUsers });
+                    const userInSessionSocket = userSockets.getForward(userInSession.id);
+                    if (userInSessionSocket != null) {
+                        userInSessionSocket.emit("stateChange", { newState: "ended", votes: votesForUsers });
                     }
-                    
+
                 }
             }
         });
     });
     // when the client disconnects
     socket.on("disconnect", () => {
-        sockets.splice(sockets.indexOf(socket), 1);
-        console.log(`socket disconnected - num sockets connected: ${sockets.length}`);
+        userSockets.deleteBackward(socket);
+        console.log(`socket disconnected - num sockets connected: ${userSockets.count()}`);
+
+        // sockets.splice(sockets.indexOf(socket), 1);
+        // console.log(`socket disconnected - num sockets connected: ${sockets.length}`);
     });
 });
 
@@ -199,7 +217,7 @@ async function checkUpdateSessionToDrawing(sessionId, socket, userSockets) {
     // sending out a message to each user in the session
     for (const userInSession of usersInSession) {
         // get the user's socket
-        const userInSessionSocket = userSockets[userInSession.id];
+        const userInSessionSocket = userSockets.getForward(userInSession.id);
         // only if the socket actually exists
         if (userInSessionSocket == undefined) continue;
         userInSessionSocket.emit("stateChange", { newState: session.state, prompt: session.prompt });

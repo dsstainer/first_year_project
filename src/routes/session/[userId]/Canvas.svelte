@@ -19,6 +19,8 @@
 		// the actual image that has been drawn
 		let buffer: any;
 
+		let bgColour = p5.color(255);
+
 		setGetImageBase64(() => {
 			return buffer.canvas.toDataURL();
 		});
@@ -26,8 +28,7 @@
 		p5.setup = () => {
 			p5.createCanvas(width, height);
 			buffer = p5.createGraphics(width, height);
-			// image has white background initially
-			buffer.background(255);
+			buffer.background(bgColour);
 			// preview buffer has transparent background as it is an overlay
 			previewBuffer = p5.createGraphics(width, height);
 		};
@@ -50,10 +51,9 @@
 				previewBuffer.noFill();
 				previewBuffer.circle(p5.mouseX, p5.mouseY, brushWidth, brushWidth);
 				if (p5.mouseIsPressed) {
-					buffer.erase();
+					buffer.stroke(bgColour);
 					buffer.strokeWeight(brushWidth);
 					buffer.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
-					buffer.noErase();
 				}
 			}
 			p5.clear();
