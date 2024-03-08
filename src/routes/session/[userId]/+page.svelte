@@ -33,6 +33,10 @@
 				state = 'drawing';
 				prompt = stateChange.prompt;
 			}
+			else if(stateChange.newState == 'voting'){
+				state = 'voting';
+
+			}
 		});
 
 		socket.on('error', (incomingError) => {
@@ -88,6 +92,10 @@
 	<button
 		on:click={submitImage}>Submit Image</button
 	>
+{:else if state=='voting'}
+	<p>voting...</p>
+{:else if state=='ended'}
+	<p>ended</p>
 {:else}
 	<h1>Undefined State</h1>
 {/if}
