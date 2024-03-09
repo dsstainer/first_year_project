@@ -19,19 +19,22 @@ export default class TwoWayMap {
 
     deleteForward(key) {
         const value = this.getForward(key);
-        console.log(value);
         delete this.forward[key];
         delete this.backward[value];
     }
 
     deleteBackward(key) {
         const value = this.getBackward(key);
-        console.log(value);
         delete this.forward[value];
         delete this.backward[key];
     }
 
     count() {
-        return Object.keys(this.forward).length;
+        const forwardCount = Object.keys(this.forward).length;
+        const backwardCount = Object.keys(this.backward).length;
+        if (forwardCount == backwardCount) {
+            return forwardCount;
+        }
+        return -1;
     }
 }

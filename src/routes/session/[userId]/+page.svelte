@@ -6,12 +6,14 @@
 	import Waiting from './Waiting.svelte';
 	import Drawing from './Drawing.svelte';
 	import Ended from './Ended.svelte';
+	import Voting from './Voting.svelte';
 
 	let wsConnected = false;
 	let prompt: string;
 	let error: any;
 	let state = 'waiting';
 	let getImageBase64: Function;
+	let votes: any;
 
 	function setGetImageBase64(newGetImageBase64: Function) {
 		getImageBase64 = newGetImageBase64;
@@ -37,6 +39,11 @@
 				prompt = stateChange.prompt;
 			} else if (stateChange.newState == 'voting') {
 				state = 'voting';
+				prompt = stateChange.prompt;
+			} else if (stateChange.newState == 'ended') {
+				state = 'ended';
+				prompt = stateChange.prompt;
+				votes = stateChange.votes;
 			}
 		});
 
@@ -73,9 +80,9 @@
 	<Drawing {setGetImageBase64} />
 	<button on:click={submitImage}>Submit Image</button>
 {:else if state == 'voting'}
-	<p>voting...</p>
+	<Voting />
 {:else if state == 'ended'}
-	<Ended />
+	<Ended votes={votes}/>
 {:else}
 	<h1>Undefined State</h1>
 {/if}

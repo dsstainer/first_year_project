@@ -8,6 +8,7 @@ import bodyParser from 'body-parser';
 import base64Img from 'base64-img';
 import { getErrorMessages, socketError, usersError } from "./errors.js";
 import TwoWayMap from './twowaymap.js';
+import { stateChageToEndedInfo, stateChageToVotingInfo, stateChangeToDrawingInfo } from './stateChangeInfo.js';
 
 import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
@@ -53,14 +54,49 @@ io.on('connection', (socket) => {
         try {
             sessionId = (await pb.collection("users").getFirstListItem(`id = "${userId}"`)).session_id;
         } catch (e) {
+            socketError(socket, getErrorMessages(e, "cannot get user from database"));
+            return;
+        }
+
+        // get the session from the database that the user is in
+        let session;
+        try {
+            session = await pb.collection("sessions").getFirstListItem(`id = "${sessionId}"`);
+        } catch (e) {
             socketError(socket, getErrorMessages(e, "cannot get session from database"));
             return;
         }
+
         // add user to the user sockets once we know the user actually exists
         userSockets.set(userId, socket);
         console.log(`socket connected and registered - num sockets connected: ${userSockets.count()}`);
+
+        console.log(session.state);
+
+        // send out the session info to the user
+        let sessionInfoToSend;
+        switch (session.state) {
+            case "waiting":
+                break;
+            case "drawing":
+                sessionInfoToSend = stateChangeToDrawingInfo(sessionId, socket, pb);
+                break;
+            case "voting":
+                sessionInfoToSend = await stateChageToVotingInfo(sessionId, socket, pb);
+                break;
+            case "ended":
+                sessionInfoToSend = await stateChageToEndedInfo(sessionId, socket, pb);
+                break;
+        }
+        if (sessionInfoToSend != undefined) {
+            socket.emit("stateChange", sessionInfoToSend);
+        }
+
         // if the number of users in that session is 4 or more the update the session
-        checkUpdateSessionToDrawing(sessionId, socket, userSockets);
+        if (session.state == "waiting") {
+            checkUpdateSessionToDrawing(sessionId, socket, userSockets);
+        }
+
         // when the user submits an image
         socket.on("image", async (imageBase64) => {
             console.log("saving image");
@@ -71,51 +107,7 @@ io.on('connection', (socket) => {
             } catch (e) {
                 socketError(socket, getErrorMessages(e, "cannot save image to database"));
             }
-            // get the users in this session form the database
-            let usersInSession;
-            try {
-                usersInSession = await pb.collection("users").getFullList({
-                    filter: `session_id = "${sessionId}"`,
-                });
-            } catch (e) {
-                socketError(socket, getErrorMessages(e, "cannot get session from database"));
-                return;
-            }
-            // if all the users in the session have submitted an image
-            if (usersInSession.every((userInSession) => userInSession.image != "")) {
-                // get some info from each user to send to all the users
-                console.log('all images submitted');
-                // get the session that the user is in
-                let session;
-                try {
-                    session = await pb.collection("sessions").getFirstListItem(`id = "${sessionId}"`);
-                } catch (e) {
-                    socketError(socket, getErrorMessages(e, "cannot get session from database"));
-                    return;
-                }
-                // update session state
-                if (session.state == "drawing") {
-                    session.state = "voting";
-                    try {
-                        await pb.collection("sessions").update(session.id, { state: "voting" });
-                    } catch (e) {
-                        usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
-                    }
-                }
-                // (image, user id, user name, etc)
-                const imageInfoToSend = usersInSession.map((userInSession) => ({
-                    userId: userInSession.id,
-                    image: userInSession.image,
-                    userNickname: userInSession.nickname,
-                }));
-                // send the image data to each user
-                for (const userInSession of usersInSession) {
-                    const userInSessionSocket = userSockets.getForward(userInSession.id);
-                    if (userInSessionSocket != null) {
-                        userInSessionSocket.emit("stateChange", { newState: "voting", images: imageInfoToSend });
-                    }
-                }
-            }
+            checkUpdateSessionToVoting(sessionId, socket, userSockets);
         });
         // when the user submits a vote
         socket.on("vote", async (voteForUserId) => {
@@ -125,44 +117,13 @@ io.on('connection', (socket) => {
             } catch (e) {
                 socketError(socket, getErrorMessages(e, "cannot save vote to database"));
             }
-            // get the users in this session form the database
-            let usersInSession;
-            try {
-                usersInSession = await pb.collection("users").getFullList({
-                    filter: `session_id = "${sessionId}"`,
-                });
-            } catch (e) {
-                socketError(socket, getErrorMessages(e, "cannot get session from database"));
-                return;
-            }
-            // if all the users in the session have submitted a vote
-            if (usersInSession.every((userInSession) => userInSession.vote_for_user_id != "")) {
-                // send the result of the votes to all the users
-                let votesForUsers = {};
-                for (const userInSession of usersInSession) {
-                    votesForUsers[userInSession.id] = { nickname: userInSession.nickname, votes: 0 };
-                }
-                for (const userInSession of usersInSession) {
-                    votesForUsers[userInSession.vote_for_user_id].votes += 1;
-                }
-                // send the image data to each user
-                for (const userInSession of usersInSession) {
-                    const userInSessionSocket = userSockets.getForward(userInSession.id);
-                    if (userInSessionSocket != null) {
-                        userInSessionSocket.emit("stateChange", { newState: "ended", votes: votesForUsers });
-                    }
-
-                }
-            }
+            checkUpdateSessionToEnded(sessionId, socket, userSockets);
         });
     });
     // when the client disconnects
     socket.on("disconnect", () => {
         userSockets.deleteBackward(socket);
         console.log(`socket disconnected - num sockets connected: ${userSockets.count()}`);
-
-        // sockets.splice(sockets.indexOf(socket), 1);
-        // console.log(`socket disconnected - num sockets connected: ${sockets.length}`);
     });
 });
 
@@ -193,7 +154,7 @@ async function checkUpdateSessionToDrawing(sessionId, socket, userSockets) {
     if (usersInSession.length < 4) {
         return;
     }
-    // no we know the state should be updated
+    // now we know the state should be updated
     console.log("updating session to drawing");
     // change state to drawing if it's in waiting
     if (session.state == "waiting") {
@@ -209,17 +170,82 @@ async function checkUpdateSessionToDrawing(sessionId, socket, userSockets) {
         const newRandomPrompt = randomPrompt();
         session.prompt = newRandomPrompt;
         try {
-            await pb.collection("sessions").update(session.id, { prompt: newRandomPrompt, state: "drawing" });
+            await pb.collection("sessions").update(session.id, { prompt: newRandomPrompt });
         } catch (e) {
             usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
         }
     }
     // sending out a message to each user in the session
     for (const userInSession of usersInSession) {
-        // get the user's socket
         const userInSessionSocket = userSockets.getForward(userInSession.id);
-        // only if the socket actually exists
         if (userInSessionSocket == undefined) continue;
         userInSessionSocket.emit("stateChange", { newState: session.state, prompt: session.prompt });
+    }
+}
+
+async function checkUpdateSessionToVoting(sessionId, socket, userSockets) {
+    // get the users in this session form the database
+    let usersInSession;
+    try {
+        usersInSession = await pb.collection("users").getFullList({
+            filter: `session_id = "${sessionId}"`,
+        });
+    } catch (e) {
+        socketError(socket, getErrorMessages(e, "cannot get session from database"));
+        return;
+    }
+    // if all the users in the session have submitted an image
+    if (usersInSession.every((userInSession) => userInSession.image != "")) {
+        // get some info from each user to send to all the users
+        console.log('all images submitted');
+        // get the session that the user is in
+        let session;
+        try {
+            session = await pb.collection("sessions").getFirstListItem(`id = "${sessionId}"`);
+        } catch (e) {
+            socketError(socket, getErrorMessages(e, "cannot get session from database"));
+            return;
+        }
+        // update session state
+        if (session.state == "drawing") {
+            session.state = "voting";
+            try {
+                await pb.collection("sessions").update(session.id, { state: "voting" });
+            } catch (e) {
+                usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
+            }
+        }
+        const stateChangeInfo = stateChageToVotingInfo(sessionId, socket, pb);
+        // send the image data to each user
+        for (const userInSession of usersInSession) {
+            const userInSessionSocket = userSockets.getForward(userInSession.id);
+            if (userInSessionSocket != null) {
+                userInSessionSocket.emit("stateChange", stateChangeInfo);
+            }
+        }
+    }
+}
+async function checkUpdateSessionToEnded(sessionId, socket, userSockets) {
+    // get the users in this session form the database
+    let usersInSession;
+    try {
+        usersInSession = await pb.collection("users").getFullList({
+            filter: `session_id = "${sessionId}"`,
+        });
+    } catch (e) {
+        socketError(socket, getErrorMessages(e, "cannot get session from database"));
+        return;
+    }
+    // if all the users in the session have submitted a vote
+    if (usersInSession.every((userInSession) => userInSession.vote_for_user_id != "")) {
+        // send the result of the votes to all the users
+        const stateChangeInfo = stateChageToEndedInfo(sessionId, socket, pb);        
+        for (const userInSession of usersInSession) {
+            const userInSessionSocket = userSockets.getForward(userInSession.id);
+            if (userInSessionSocket != null) {
+                userInSessionSocket.emit("stateChange", stateChangeInfo);
+            }
+
+        }
     }
 }
