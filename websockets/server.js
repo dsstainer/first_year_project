@@ -104,6 +104,7 @@ io.on('connection', (socket) => {
             try {
                 await pb.collection("users").update(userId, { image: imageBase64 });
 
+
             } catch (e) {
                 socketError(socket, getErrorMessages(e, "cannot save image to database"));
             }
