@@ -19,6 +19,8 @@
 		// the actual image that has been drawn
 		let buffer: any;
 
+		let bgColour = p5.color(255);
+
 		setGetImageBase64(() => {
 			return buffer.canvas.toDataURL();
 		});
@@ -26,15 +28,14 @@
 		p5.setup = () => {
 			p5.createCanvas(width, height);
 			buffer = p5.createGraphics(width, height);
-			// image has white background initially
-			buffer.background(255);
+			buffer.background(bgColour);
 			// preview buffer has transparent background as it is an overlay
 			previewBuffer = p5.createGraphics(width, height);
 		};
 
 		p5.draw = () => {
 			previewBuffer.clear();
-			if (paintMode == 'brush') {
+			if (paintMode == 'pencil') {
 				previewBuffer.stroke(colour);
 				previewBuffer.strokeWeight(brushWidth);
 				previewBuffer.point(p5.mouseX, p5.mouseY);
@@ -44,8 +45,69 @@
 					buffer.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
 				}
 			}
+			if (paintMode == 'eraser') {
+				previewBuffer.stroke(0);
+				previewBuffer.strokeWeight(1);
+				previewBuffer.noFill();
+				previewBuffer.circle(p5.mouseX, p5.mouseY, brushWidth, brushWidth);
+				if (p5.mouseIsPressed) {
+					buffer.stroke(bgColour);
+					buffer.strokeWeight(brushWidth);
+					buffer.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
+				}
+			}
+			p5.clear();
 			p5.image(buffer, 0, 0);
 			p5.image(previewBuffer, 0, 0);
+		};
+
+		p5.mousePressed = () => {
+			const speed = 1;
+			if (
+				paintMode == 'fill' &&
+				!(p5.mouseX < 0 || p5.mouseY < 0 || p5.mouseX >= buffer.width || p5.mouseY >= buffer.height)
+			) {
+				buffer.loadPixels();
+				let position = ((Math.floor(p5.mouseY) * buffer.width) + Math.floor(p5.mouseX));
+				let originR = buffer.pixels[position * 4];
+				let originG = buffer.pixels[position * 4 + 1];
+				let originB = buffer.pixels[position * 4 + 2];
+				let originA = buffer.pixels[position * 4 + 3];
+				let positions = [position];
+				let filledPositions = new Set();
+				let colourp5 = p5.color(colour);
+				for (let i = 0; i < 100 * buffer.width * buffer.height; i++) {
+					let position = positions.shift();
+					if (position == undefined) {
+						break;
+					}
+					if (
+						position % buffer.width == 0 ||
+						position % buffer.width == buffer.width - 1 ||
+						position < buffer.width ||
+						position >= (buffer.height - 1) * buffer.width
+					) {
+						continue;
+					}
+					if (filledPositions.has(position)) {
+						continue;
+					}
+					let r = buffer.pixels[position * 4];
+					let g = buffer.pixels[position * 4 + 1];
+					let b = buffer.pixels[position * 4 + 2];
+					let a = buffer.pixels[position * 4 + 3];
+					if (!(r == originR && g == originG && b == originB && a == originA)) {
+						continue;
+					}
+					buffer.set(position % buffer.width, Math.floor(position / buffer.width), colourp5);
+					positions.push(position - 1);
+					positions.push(position + 1);
+					positions.push(position - buffer.width);
+					positions.push(position + buffer.width);
+					filledPositions.add(position);
+				}
+				buffer.updatePixels();
+			}
 		};
 	};
 </script>
@@ -54,21 +116,50 @@
 <h3>main paint mode</h3>
 <button
 	on:click={() => {
-		paintMode = 'brush';
+		paintMode = 'pencil';
+	}}
+>
+	pencil
+</button>
+<button
+	on:click={() => {
+		paintMode = 'eraser';
+	}}
+>
+	eraser
+</button>
+<button
+	on:click={() => {
+		paintMode = 'ellipse';
+	}}
+>
+	ellipse
+</button>
+<button
+	on:click={() => {
+		paintMode = 'fill';
+	}}
+>
+	fill
+</button>
+<button
+	on:click={() => {
+		paintMode = 'line';
 	}}
 >
 	line
 </button>
 <h3>extra painting settings</h3>
-<!-- brush width -->
-{#if ['brush', 'line', 'ellipse'].includes(paintMode)}
+<p>for: {paintMode}</p>
+<!-- width -->
+{#if ['pencil', 'line', 'ellipse', 'eraser'].includes(paintMode)}
 	<label for="bushwidth"
 		>brush width
 		<input type="range" id="brushwidth" bind:value={brushWidth} />
 	</label>
 {/if}
 <!-- colour -->
-{#if ['brush', 'fill'].includes(paintMode)}
+{#if ['pencil', 'fill', 'ellipse'].includes(paintMode)}
 	<label for="colour"
 		>colour
 		<input type="color" id="colour" bind:value={colour} />
