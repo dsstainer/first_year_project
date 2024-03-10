@@ -1,41 +1,45 @@
 export default class TwoWayMap {
     constructor() {
-        this.forward = {};
-        this.backward = {};
+
+        this.forward = new Map();
+        this.backward = new Map();
     }
 
     set(key, value) {
-        this.forward[key] = value;
-        this.backward[value] = key;
+        this.forward.set(key, value);
+        this.backward.set(value ,key);
     }
 
     getForward(key) {
-        return this.forward[key];
+        return this.forward.get(key);
     }
 
     getBackward(key) {
-        return this.backward[key];
+        return this.backward.get(key);
     }
 
     deleteForward(key) {
         const value = this.getForward(key);
-        delete this.forward[key];
-        delete this.backward[value];
+        this.forward.delete(key);
+        this.backward.delete(value);
     }
 
     deleteBackward(key) {
         const value = this.getBackward(key);
-        delete this.forward[value];
-        delete this.backward[key];
+        //console.log(this.backward.has(key));
+        //console.log(this.forward.keys());
+        //console.log(this.backward.values());
+        this.forward.delete(value);
+        this.backward.delete(key);
     }
 
     count() {
-        const forwardCount = Object.keys(this.forward).length;
-        const backwardCount = Object.keys(this.backward).length;
+        const forwardCount = this.forward.size;
+        const backwardCount = this.backward.size;
+        console.log(forwardCount, backwardCount);
         if (forwardCount == backwardCount) {
             return forwardCount;
         }
-        console.log(forwardCount, backwardCount);
         return -1;
     }
 }

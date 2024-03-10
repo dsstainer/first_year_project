@@ -2,7 +2,6 @@
     export let images;
     export let socket;
     export let userId;
-
     const submitVote = id => () =>{
         socket.emit("vote",id);
     }
@@ -27,5 +26,4 @@
     {/each}
 
 </div>
-
 

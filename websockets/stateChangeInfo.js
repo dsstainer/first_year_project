@@ -40,7 +40,7 @@ export async function stateChageToVotingInfo(sessionId, socket, pb) {
         image: userInSession.image,
         userNickname: userInSession.nickname,
     }));
-
+    console.log('change state to voting');
     return { newState: "voting", images: imageInfoToSend };
 }
 

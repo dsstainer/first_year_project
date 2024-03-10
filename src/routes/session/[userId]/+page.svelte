@@ -12,7 +12,7 @@
 	let prompt: string;
 	let socket;
 	let error: any;
-	let state = 'waiting';
+	let state = null;
 	let getImageBase64: Function;
 	let votes: any;
 	let images:any;
@@ -27,10 +27,12 @@
 		console.error("can't submit image until sockets are setup");
 	};
 
-	function setupSocket() {
-		socket = io('http://localhost:3000');
-		
+	async function  setupSocket() {
+		socket = await io('http://localhost:3000');
+		listenToSocket(socket);
+	}
 
+	function listenToSocket(socket){
 		socket.on('connectionOk', () => {
 			wsConnected = true;
 			console.log("connect");
@@ -43,7 +45,7 @@
 				state = 'waiting';
 				numUsers = stateChange.numUsers;
 			}
-			if (stateChange.newState == 'drawing') {
+			else if (stateChange.newState == 'drawing') {
 				state = 'drawing';
 				prompt = stateChange.prompt;
 			} else if (stateChange.newState == 'voting') {
@@ -63,7 +65,7 @@
 
 		socket.on('disconnect', () => {
 			console.log("disconnect");
-			setupSocket();
+			listenToSocket(socket);
 		});
 
 		submitImage = () => {
@@ -72,8 +74,8 @@
 		};
 	}
 
-	onMount(() => {
-		setupSocket();
+	onMount(async () => {
+		await setupSocket();
 	});
 </script>
 

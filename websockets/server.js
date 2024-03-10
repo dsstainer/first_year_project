@@ -71,7 +71,6 @@ io.on('connection', (socket) => {
         userSockets.set(userId, socket);
         console.log(`socket connected and registered - num sockets connected: ${userSockets.count()}`);
 
-        console.log(session.state);
 
         // send out the session info to the user
         let sessionInfoToSend;
@@ -154,6 +153,11 @@ async function checkUpdateSessionToDrawing(sessionId, socket, userSockets) {
     }
     // guard clause such that if there's not enough users then the state will not change
     if (usersInSession.length < 4) {
+        for(const userInSession of usersInSession){
+            const userInSessionSocket = userSockets.getForward(userInSession.id);
+            if (userInSessionSocket == undefined) continue;
+            userInSessionSocket.emit("stateChange", {newState:"waiting", numUsers:usersInSession.length});
+        }
         return;
     }
     // now we know the state should be updated
@@ -217,7 +221,7 @@ async function checkUpdateSessionToVoting(sessionId, socket, userSockets) {
                 usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
             }
         }
-        const stateChangeInfo = stateChageToVotingInfo(sessionId, socket, pb);
+        const stateChangeInfo = await stateChageToVotingInfo(sessionId, socket, pb);
         // send the image data to each user
         for (const userInSession of usersInSession) {
             const userInSessionSocket = userSockets.getForward(userInSession.id);
@@ -242,6 +246,11 @@ async function checkUpdateSessionToEnded(sessionId, socket, userSockets) {
     if (usersInSession.every((userInSession) => userInSession.vote_for_user_id != "")) {
         // send the result of the votes to all the users
         console.log("all votes submitted");
+        try {
+            await pb.collection("sessions").update(sessionId, { state: "ended" });
+        } catch (e) {
+            usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
+        }
         const stateChangeInfo = await stateChageToEndedInfo(sessionId, socket, pb);        
         for (const userInSession of usersInSession) {
             const userInSessionSocket = userSockets.getForward(userInSession.id);
