@@ -35,6 +35,7 @@ export default class TwoWayMap {
         if (forwardCount == backwardCount) {
             return forwardCount;
         }
+        console.log(forwardCount, backwardCount);
         return -1;
     }
 }
