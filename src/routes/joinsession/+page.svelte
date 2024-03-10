@@ -38,6 +38,7 @@
 		</div>
 		</form>
 		{#if form != undefined}
+		{#if form != 'session-full'}
 		  <div class='page-content-break'></div>
 		  <div class='page-content-content'>
 		    <h2>Your User Id: {form.id}</h2>
@@ -45,6 +46,12 @@
 			    navigator.clipboard.writeText(window.location.host + formLink);}}>
 		    Copy Link</button></p>
 		  </div>
+		{:else}
+		  <div class='page-content-break'></div>
+		  <div class='page-content-content'>
+			<p class='error'>Error - there are already 4 users in this session</p>
+		  </div>
+		{/if}
 		{/if}
 	</div>
 </div>
@@ -54,5 +61,8 @@
 <style>
 	.page-content{
 		background-color:#FFB8B8;
+	}
+	.error{
+		color:red;
 	}
 </style>
