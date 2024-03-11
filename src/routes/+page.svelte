@@ -3,7 +3,7 @@
 
 <section>
 	<h1>
-		opposite drawing game
+		Flip Pad
 	</h1>
 </section>
 

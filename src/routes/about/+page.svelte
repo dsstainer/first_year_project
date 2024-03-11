@@ -1,6 +1,6 @@
 <div>
 	<h1>About this app</h1>
 	<p>
-		About this app
+		FlipPad is a game created using...
 	</p>
 </div>
