@@ -21,18 +21,22 @@
 
 		let bgColour = p5.color(255);
 
+		let shapeOriginX: number | undefined;
+		let shapeOriginY: number | undefined;
+
 		setGetImageBase64(() => {
 			return buffer.canvas.toDataURL();
 		});
 
 		p5.setup = () => {
 			p5.createCanvas(width, height);
+			p5.pixelDensity(1);
 			buffer = p5.createGraphics(width, height);
 			buffer.background(bgColour);
 			// preview buffer has transparent background as it is an overlay
 			previewBuffer = p5.createGraphics(width, height);
 		};
-
+		
 		p5.draw = () => {
 			previewBuffer.clear();
 			if (paintMode == 'pencil') {
@@ -44,6 +48,22 @@
 					buffer.strokeWeight(brushWidth);
 					buffer.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
 				}
+			}
+			if (paintMode == "line" && shapeOriginX != undefined && shapeOriginY != undefined) {
+				previewBuffer.stroke(colour);
+				previewBuffer.strokeWeight(brushWidth);
+				previewBuffer.line(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
+			}
+			if (paintMode == "rectangle" && shapeOriginX != undefined && shapeOriginY != undefined) {
+				previewBuffer.stroke(colour);
+				previewBuffer.strokeWeight(brushWidth);
+				previewBuffer.rectangle(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
+			}
+			if (paintMode == "ellipse" && shapeOriginX != undefined && shapeOriginY != undefined) {
+				previewBuffer.stroke(colour);
+				previewBuffer.strokeWeight(brushWidth);
+				previewBuffer.noFill();
+				previewBuffer.ellipse((shapeOriginX + p5.mouseX) / 2, (shapeOriginY + p5.mouseY) / 2, p5.mouseX - shapeOriginX, p5.mouseY - shapeOriginY);
 			}
 			if (paintMode == 'eraser') {
 				previewBuffer.stroke(0);
@@ -61,12 +81,51 @@
 			p5.image(previewBuffer, 0, 0);
 		};
 
+		p5.mouseReleased = () => {
+			if (paintMode == "line" && shapeOriginX != undefined && shapeOriginY != undefined) {
+				buffer.stroke(colour);
+				buffer.strokeWeight(brushWidth);
+				// buffer.noFill();
+				buffer.line(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
+				shapeOriginX = undefined;
+				shapeOriginY = undefined;
+			}
+			if (paintMode == "ellipse" && shapeOriginX != undefined && shapeOriginY != undefined) {
+				buffer.stroke(colour);
+				buffer.strokeWeight(brushWidth);
+				buffer.noFill();
+				buffer.ellipse((shapeOriginX + p5.mouseX) / 2, (shapeOriginY + p5.mouseY) / 2, p5.mouseX - shapeOriginX, p5.mouseY - shapeOriginY);
+				shapeOriginX = undefined;
+				shapeOriginY = undefined;
+			}
+			if (paintMode == "rectangle" && shapeOriginX != undefined && shapeOriginY != undefined) {
+				buffer.stroke(colour);
+				buffer.strokeWeight(brushWidth);
+				buffer.noFill();
+				buffer.rectangle(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
+				shapeOriginX = undefined;
+				shapeOriginY = undefined;
+			}
+		}
+
 		p5.mousePressed = () => {
-			const speed = 1;
+			if (paintMode == "line") {
+				shapeOriginX = p5.mouseX;
+				shapeOriginY = p5.mouseY;
+			}
+			if (paintMode == "ellipse") {
+				shapeOriginX = p5.mouseX;
+				shapeOriginY = p5.mouseY;
+			}
+			if (paintMode == "rectangle") {
+				shapeOriginX = p5.mouseX;
+				shapeOriginY = p5.mouseY;
+			}
 			if (
 				paintMode == 'fill' &&
 				!(p5.mouseX < 0 || p5.mouseY < 0 || p5.mouseX >= buffer.width || p5.mouseY >= buffer.height)
 			) {
+				const tolerance = 5;
 				buffer.loadPixels();
 				let position = ((Math.floor(p5.mouseY) * buffer.width) + Math.floor(p5.mouseX));
 				let originR = buffer.pixels[position * 4];
@@ -96,7 +155,12 @@
 					let g = buffer.pixels[position * 4 + 1];
 					let b = buffer.pixels[position * 4 + 2];
 					let a = buffer.pixels[position * 4 + 3];
-					if (!(r == originR && g == originG && b == originB && a == originA)) {
+					const rDiff = r - originR;
+					const gDiff = g - originG;
+					const bDiff = b - originB;
+					const aDiff = a - originA;
+
+					if (!(Math.abs(rDiff) <= tolerance && Math.abs(gDiff) <= tolerance && Math.abs(bDiff) <= tolerance && Math.abs(aDiff) <= tolerance)) {
 						continue;
 					}
 					buffer.set(position % buffer.width, Math.floor(position / buffer.width), colourp5);
@@ -148,6 +212,13 @@
 	}}
 >
 	line
+</button>
+<button
+	on:click={() => {
+		paintMode = 'rectangle';
+	}}
+>
+	rectangle
 </button>
 <h3>extra painting settings</h3>
 <p>for: {paintMode}</p>
