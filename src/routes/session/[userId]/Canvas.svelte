@@ -8,7 +8,7 @@
 	export let setGetImageBase64: Function;
 
 	// ellipse, line, brush, etc
-	let paintMode = '';
+	let paintMode = 'brush';
 	// paint options
 	let brushWidth = 10;
 	let colour = '#000000';
@@ -30,15 +30,22 @@
 
 		p5.setup = () => {
 			p5.createCanvas(width, height);
-			p5.pixelDensity(1);
+			// p5.pixelDensity(1);
 			buffer = p5.createGraphics(width, height);
+
 			buffer.background(bgColour);
 			// preview buffer has transparent background as it is an overlay
 			previewBuffer = p5.createGraphics(width, height);
 		};
-		
+
 		p5.draw = () => {
+			// previewBuffer.reset();
+			// previewBuffer.erase();
+			// previewBuffer.rect(0, 0, previewBuffer.width, previewBuffer.height);
+			// previewBuffer.noErase();
+			// p5.image(previewBuffer, 0, 0);
 			previewBuffer.clear();
+
 			if (paintMode == 'pencil') {
 				previewBuffer.stroke(colour);
 				previewBuffer.strokeWeight(brushWidth);
@@ -49,21 +56,32 @@
 					buffer.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
 				}
 			}
-			if (paintMode == "line" && shapeOriginX != undefined && shapeOriginY != undefined) {
+			if (paintMode == 'line' && shapeOriginX != undefined && shapeOriginY != undefined) {
 				previewBuffer.stroke(colour);
 				previewBuffer.strokeWeight(brushWidth);
 				previewBuffer.line(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
 			}
-			if (paintMode == "rectangle" && shapeOriginX != undefined && shapeOriginY != undefined) {
-				previewBuffer.stroke(colour);
-				previewBuffer.strokeWeight(brushWidth);
-				previewBuffer.rectangle(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
-			}
-			if (paintMode == "ellipse" && shapeOriginX != undefined && shapeOriginY != undefined) {
+			if (paintMode == 'rectangle' && shapeOriginX != undefined && shapeOriginY != undefined) {
 				previewBuffer.stroke(colour);
 				previewBuffer.strokeWeight(brushWidth);
 				previewBuffer.noFill();
-				previewBuffer.ellipse((shapeOriginX + p5.mouseX) / 2, (shapeOriginY + p5.mouseY) / 2, p5.mouseX - shapeOriginX, p5.mouseY - shapeOriginY);
+				previewBuffer.rect(
+					shapeOriginX,
+					shapeOriginY,
+					p5.mouseX - shapeOriginX,
+					p5.mouseY - shapeOriginY
+				);
+			}
+			if (paintMode == 'ellipse' && shapeOriginX != undefined && shapeOriginY != undefined) {
+				previewBuffer.stroke(colour);
+				previewBuffer.strokeWeight(brushWidth);
+				previewBuffer.noFill();
+				previewBuffer.ellipse(
+					(shapeOriginX + p5.mouseX) / 2,
+					(shapeOriginY + p5.mouseY) / 2,
+					p5.mouseX - shapeOriginX,
+					p5.mouseY - shapeOriginY
+				);
 			}
 			if (paintMode == 'eraser') {
 				previewBuffer.stroke(0);
@@ -76,13 +94,22 @@
 					buffer.line(p5.pmouseX, p5.pmouseY, p5.mouseX, p5.mouseY);
 				}
 			}
+			// p5.noSmooth();
 			p5.clear();
+			// p5.background(255);
 			p5.image(buffer, 0, 0);
 			p5.image(previewBuffer, 0, 0);
 		};
 
+		p5.keyPressed = () => {
+			if (p5.keyCode == p5.ESCAPE) {
+				shapeOriginX = undefined;
+				shapeOriginY = undefined;
+			}
+		};
+
 		p5.mouseReleased = () => {
-			if (paintMode == "line" && shapeOriginX != undefined && shapeOriginY != undefined) {
+			if (paintMode == 'line' && shapeOriginX != undefined && shapeOriginY != undefined) {
 				buffer.stroke(colour);
 				buffer.strokeWeight(brushWidth);
 				// buffer.noFill();
@@ -90,34 +117,39 @@
 				shapeOriginX = undefined;
 				shapeOriginY = undefined;
 			}
-			if (paintMode == "ellipse" && shapeOriginX != undefined && shapeOriginY != undefined) {
+			if (paintMode == 'ellipse' && shapeOriginX != undefined && shapeOriginY != undefined) {
 				buffer.stroke(colour);
 				buffer.strokeWeight(brushWidth);
 				buffer.noFill();
-				buffer.ellipse((shapeOriginX + p5.mouseX) / 2, (shapeOriginY + p5.mouseY) / 2, p5.mouseX - shapeOriginX, p5.mouseY - shapeOriginY);
+				buffer.ellipse(
+					(shapeOriginX + p5.mouseX) / 2,
+					(shapeOriginY + p5.mouseY) / 2,
+					p5.mouseX - shapeOriginX,
+					p5.mouseY - shapeOriginY
+				);
 				shapeOriginX = undefined;
 				shapeOriginY = undefined;
 			}
-			if (paintMode == "rectangle" && shapeOriginX != undefined && shapeOriginY != undefined) {
+			if (paintMode == 'rectangle' && shapeOriginX != undefined && shapeOriginY != undefined) {
 				buffer.stroke(colour);
 				buffer.strokeWeight(brushWidth);
 				buffer.noFill();
-				buffer.rectangle(shapeOriginX, shapeOriginY, p5.mouseX, p5.mouseY);
+				buffer.rect(shapeOriginX, shapeOriginY, p5.mouseX - shapeOriginX, p5.mouseY - shapeOriginY);
 				shapeOriginX = undefined;
 				shapeOriginY = undefined;
 			}
-		}
+		};
 
 		p5.mousePressed = () => {
-			if (paintMode == "line") {
+			if (paintMode == 'line') {
 				shapeOriginX = p5.mouseX;
 				shapeOriginY = p5.mouseY;
 			}
-			if (paintMode == "ellipse") {
+			if (paintMode == 'ellipse') {
 				shapeOriginX = p5.mouseX;
 				shapeOriginY = p5.mouseY;
 			}
-			if (paintMode == "rectangle") {
+			if (paintMode == 'rectangle') {
 				shapeOriginX = p5.mouseX;
 				shapeOriginY = p5.mouseY;
 			}
@@ -127,7 +159,7 @@
 			) {
 				const tolerance = 5;
 				buffer.loadPixels();
-				let position = ((Math.floor(p5.mouseY) * buffer.width) + Math.floor(p5.mouseX));
+				let position = Math.floor(p5.mouseY) * buffer.width + Math.floor(p5.mouseX);
 				let originR = buffer.pixels[position * 4];
 				let originG = buffer.pixels[position * 4 + 1];
 				let originB = buffer.pixels[position * 4 + 2];
@@ -160,7 +192,14 @@
 					const bDiff = b - originB;
 					const aDiff = a - originA;
 
-					if (!(Math.abs(rDiff) <= tolerance && Math.abs(gDiff) <= tolerance && Math.abs(bDiff) <= tolerance && Math.abs(aDiff) <= tolerance)) {
+					if (
+						!(
+							Math.abs(rDiff) <= tolerance &&
+							Math.abs(gDiff) <= tolerance &&
+							Math.abs(bDiff) <= tolerance &&
+							Math.abs(aDiff) <= tolerance
+						)
+					) {
 						continue;
 					}
 					buffer.set(position % buffer.width, Math.floor(position / buffer.width), colourp5);
@@ -176,69 +215,92 @@
 	};
 </script>
 
-<P5 {sketch} />
-<h3>main paint mode</h3>
-<button
-	on:click={() => {
-		paintMode = 'pencil';
-	}}
->
-	pencil
-</button>
-<button
-	on:click={() => {
-		paintMode = 'eraser';
-	}}
->
-	eraser
-</button>
-<button
-	on:click={() => {
-		paintMode = 'ellipse';
-	}}
->
-	ellipse
-</button>
-<button
-	on:click={() => {
-		paintMode = 'fill';
-	}}
->
-	fill
-</button>
-<button
-	on:click={() => {
-		paintMode = 'line';
-	}}
->
-	line
-</button>
-<button
-	on:click={() => {
-		paintMode = 'rectangle';
-	}}
->
-	rectangle
-</button>
-<h3>extra painting settings</h3>
-<p>for: {paintMode}</p>
-<!-- width -->
-{#if ['pencil', 'line', 'ellipse', 'eraser'].includes(paintMode)}
-	<label for="bushwidth"
-		>brush width
-		<input type="range" id="brushwidth" bind:value={brushWidth} />
-	</label>
-{/if}
-<!-- colour -->
-{#if ['pencil', 'fill', 'ellipse'].includes(paintMode)}
-	<label for="colour"
-		>colour
-		<input type="color" id="colour" bind:value={colour} />
-	</label>
-{/if}
+<div class="canvas-container">
+	<div class="paint-mode">
+		<label class="paint-mode-radio-button">
+			<input bind:group={paintMode} type="radio" name="paintMode" value="pencil" /> pencil
+		</label>
+		<br />
+		<label class="paint-mode-radio-button">
+			<input bind:group={paintMode} type="radio" name="paintMode" value="eraser" /> eraser
+		</label>
+		<br />
+		<label class="paint-mode-radio-button">
+			<input bind:group={paintMode} type="radio" name="paintMode" value="line" /> line
+		</label>
+		<br />
+		<label class="paint-mode-radio-button">
+			<input bind:group={paintMode} type="radio" name="paintMode" value="fill" /> fill
+		</label>
+		<br />
+		<label class="paint-mode-radio-button">
+			<input bind:group={paintMode} type="radio" name="paintMode" value="ellipse" /> ellipse
+		</label>
+		<br />
+		<label class="paint-mode-radio-button">
+			<input bind:group={paintMode} type="radio" name="paintMode" value="rectangle" /> rectangle
+		</label>
+	</div>
 
-<!-- some other extra setting -->
-<!-- {#if ["brush", "..."].includes(paintMode)} -->
-<!--   <label for="bushwidth">brush width</label> -->
-<!--   <input type="range" id="brushwidth" bind:value={brushWidth}/> -->
-<!-- {/if} -->
+	<div class="sktech">
+		<P5 {sketch} />
+	</div>
+
+	<div class="paint-options">
+		{#if ['pencil', 'line', 'ellipse', 'eraser', 'rectangle'].includes(paintMode)}
+			<label for="bushwidth"
+				>brush width
+				<br />
+				<input type="range" id="brushwidth" bind:value={brushWidth} />
+			</label>
+			<br />
+		{/if}
+		{#if ['pencil', 'fill', 'ellipse', 'line', 'rectangle'].includes(paintMode)}
+			<label for="colour"
+				>colour
+				<br />
+				<input type="color" id="colour" bind:value={colour} />
+			</label>
+			<br />
+		{/if}
+	</div>
+</div>
+
+<style>
+	.canvas-container {
+		display: flex;
+		/* flex-flow: row; */
+	}
+	.paint-mode,
+	.paint-options {
+		flex: 1 1 auto;
+		width: 200px;
+		padding: 10px;
+	}
+
+	.paint-mode-radio-button {
+		display: inline-block;
+		padding: 8px 16px;
+		background-color: #f0f0f0;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.paint-mode-radio-button:hover {
+		background-color: #e0e0e0;
+	}
+
+	.paint-mode-radio-button > input[type='radio'] {
+		display: none;
+	}
+
+	.paint-mode-radio-button > input[type='radio']:checked + label {
+		background-color: #007bff;
+		color: #fff;
+	}
+
+	.paint-options > * > * {
+		width: 150px;
+	}
+</style>

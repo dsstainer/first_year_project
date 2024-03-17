@@ -3,13 +3,9 @@ body {
 	margin: 0;
 }
 
+
 .no-margin{
 	margin:0;
-}
-
-
-canvas {
-	border: 1px solid black;
 }
 
 .container {
@@ -176,4 +172,3 @@ background-color: #00C19F;
     align-items: center;
     background-color: #8DB4FF;
 }
-
