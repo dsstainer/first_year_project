@@ -183,3 +183,7 @@ button:hover:not(:disabled) {
 	align-items: center;
 	background-color: #8DB4FF;
 }
+
+.error {
+	color: red;
+}
