@@ -1,4 +1,4 @@
-<div class="page-container">
+<!-- <div class="page-container">
     <div class="page-title">
         <p>Voting</p>
     </div>
@@ -33,4 +33,4 @@
             <button>Vote</button>
         </div>
     </div>
-</div>
+</div> -->

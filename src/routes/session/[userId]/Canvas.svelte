@@ -217,11 +217,28 @@
 
 <div class="canvas-container">
 	<div class="paint-mode">
-		<label class="paint-mode-radio-button">
-			<input bind:group={paintMode} type="radio" name="paintMode" value="pencil" /> pencil
-		</label>
+		<input bind:group={paintMode} type="radio" name="paintMode" value="pencil" id="pencilrb" />
+		<label class="paint-mode-radio-button-label" for="pencilrb">pencil</label>
 		<br />
-		<label class="paint-mode-radio-button">
+		<input bind:group={paintMode} type="radio" name="paintMode" value="eraser" id="eraserrb" />
+		<label class="paint-mode-radio-button-label" for="eraserrb">eraser</label>
+		<br />
+		<input bind:group={paintMode} type="radio" name="paintMode" value="fill" id="fillrb" />
+		<label class="paint-mode-radio-button-label" for="fillrb">fill</label>
+		<br />
+		<input bind:group={paintMode} type="radio" name="paintMode" value="ellipse" id="ellipserb" />
+		<label class="paint-mode-radio-button-label" for="ellipserb">ellipse</label>
+		<br />
+		<input
+			bind:group={paintMode}
+			type="radio"
+			name="paintMode"
+			value="rectangle"
+			id="rectanglerb"
+		/>
+		<label class="paint-mode-radio-button-label" for="rectanglerb">rectangle</label>
+		<br />
+		<!-- <label class="paint-mode-radio-button">
 			<input bind:group={paintMode} type="radio" name="paintMode" value="eraser" /> eraser
 		</label>
 		<br />
@@ -239,7 +256,7 @@
 		<br />
 		<label class="paint-mode-radio-button">
 			<input bind:group={paintMode} type="radio" name="paintMode" value="rectangle" /> rectangle
-		</label>
+		</label> -->
 	</div>
 
 	<div class="sktech">
@@ -278,7 +295,17 @@
 		padding: 10px;
 	}
 
-	.paint-mode-radio-button {
+	input[type='radio'] {
+		display: none;
+	}
+
+	input[type='radio']:checked + .paint-mode-radio-button-label {
+		background-color: #007bff;
+		color: #fff;
+		border-color: #007bff;
+	}
+
+	.paint-mode-radio-button-label {
 		display: inline-block;
 		padding: 8px 16px;
 		background-color: #f0f0f0;
@@ -287,18 +314,14 @@
 		cursor: pointer;
 	}
 
-	.paint-mode-radio-button:hover {
+	/* .paint-mode-radio-button:hover {
 		background-color: #e0e0e0;
-	}
+	} */
 
-	.paint-mode-radio-button > input[type='radio'] {
-		display: none;
-	}
-
-	.paint-mode-radio-button > input[type='radio']:checked + label {
+	/* .paint-mode-radio-button-selected {
 		background-color: #007bff;
 		color: #fff;
-	}
+	} */
 
 	.paint-options > * > * {
 		width: 150px;

@@ -1,1 +1,1 @@
-<p>error, no userId specified</p>
+<p class="error">error, no userId specified</p>

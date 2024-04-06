@@ -170,23 +170,6 @@ button:hover:not(:disabled) {
 	background-color: #00C19F;
 }
 
-.grid-container {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 40px;
-	width: 1200px;
-	max-width: 1200px;
-	padding: 20px;
-	border: 1px solid #59069A;
-}
-
-.item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: #8DB4FF;
-}
-
 .error {
 	color: red;
 }
