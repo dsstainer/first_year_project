@@ -36,8 +36,6 @@ function getBackgroundColor(id: string) {
     else {
         return colors[4];
     }
-
-    return color;
 }
 
 function addColorsToSession(data: any) {

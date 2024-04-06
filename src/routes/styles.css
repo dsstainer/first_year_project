@@ -2,15 +2,18 @@
 	font-family: "mondayfeelings";
 	src: url("/fonts/mondayfeelings/MondayFeelings-7BD2l.ttf") format("truetype"), url('/fonts/mondayfeelings/MondayFeelings-7BD2l.woff2') format('woff2');
 }
+
 @font-face {
 	font-family: "kalam";
 	src: url("/fonts/kalam/Kalam-Regular.woff2") format('woff2'), url("/fonts/kalam/Kalam-Regular.ttf") format('truetype');
 }
 
+* {
+	font-family: 'kalam';
+}
 
 body {
 	/* font-family: 'Just Me Again Down Here';font-size: 22px; */
-	font-family: 'kalam';
 	font-size: 22px;
 	margin: 0;
 }
@@ -101,9 +104,9 @@ body {
 	font-size: 1.5rem;
 }
 
-input[type="text"] {
+/* input[type="text"] {
 	font-family: 'Just Me Again Down Here';
-}
+} */
 
 .page-content-explanation {
 	margin: 0;

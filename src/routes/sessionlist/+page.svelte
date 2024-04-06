@@ -24,7 +24,7 @@
 						<div class="page-content-list-break"></div>
 						<p class="no-margin">
 							{#if session.numUsers <= 3}
-								<a href={`/joinsession?sessionId=${session.id}`}>Press me To Join Session!</a>
+								<a href={`/joinsession?sessionId=${session.id}`} target="_blank">Press me To Join Session!</a>
 								<button
 									on:click={() => {
 										navigator.clipboard.writeText(
