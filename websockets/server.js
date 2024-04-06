@@ -68,7 +68,9 @@ io.on('connection', (socket) => {
         }
 
         // add user to the user sockets once we know the user actually exists
-        userSockets.set(userId, socket);
+        if(userSockets.getForward(userId) == undefined){
+            userSockets.set(userId, socket);
+        }
         console.log(`socket connected and registered - num sockets connected: ${userSockets.count()}`);
 
 
@@ -77,6 +79,7 @@ io.on('connection', (socket) => {
         switch (session.state) {
             case "waiting":
                 sessionInfoToSend = await stateChangeToWaitingInfo(sessionId, socket, pb);
+                console.log(sessionInfoToSend);
                 break;
             case "drawing":
                 sessionInfoToSend = await stateChangeToDrawingInfo(sessionId, socket, pb);
@@ -95,6 +98,10 @@ io.on('connection', (socket) => {
         // if the number of users in that session is 4 or more the update the session
         if (session.state == "waiting") {
             checkUpdateSessionToDrawing(sessionId, socket, userSockets);
+        }else if(session.state == "drawing"){
+            checkUpdateSessionToVoting(sessionId, socket, userSockets);
+        }else if(session.state == "voting"){
+            checkUpdateSessionToEnded(sessionId, socket, userSockets);
         }
 
         // when the user submits an image
@@ -122,7 +129,57 @@ io.on('connection', (socket) => {
         });
     });
     // when the client disconnects
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
+        let userId = userSockets.getBackward(socket);
+        console.log(`Your user id of disconnection ${userId}`)
+
+        let sessionId = null;
+        try {
+            sessionId = (await pb.collection("users").getFirstListItem(`id = "${userId}"`)).session_id;
+        } catch (e) {
+            socketError(socket, getErrorMessages(e, "cannot get user from database"));
+        }
+        let users;
+        try{
+            users = await pb.collection("users").getFullList(`session_id = "${sessionId}"`)
+        } catch(e) {
+            socketError(socket, getErrorMessages(e, "cannot get session from database"));
+            return;
+        }
+
+        let hasUser = false;
+        for(const user of users){ 
+            if(userSockets.getForward(user.id) && user.id !== userId){
+                hasUser = true;
+                break;
+            }
+        }
+        if(!hasUser){
+            console.log('no more users in this session - deleting');
+            //delete users from db
+            for(const user of users){
+                try{
+                    await pb.collection("users").delete(`${user.id}`);
+                } catch(e){
+                    socketError(socket, getErrorMessages(e, "cannot get user from database"));
+                }
+            }
+            console.log('users deleted');
+            //delete session from db
+            try{
+                await pb.collection("sessions").delete(`${sessionId}`);
+            } catch(e){
+            }
+            console.log('session deleted');
+        }else{
+            for(const user of users){
+                const socket = userSockets.getForward(user.id);
+                if(socket){
+                    socket.emit('user in session disconnected')
+                }        
+            }
+        }
+
         userSockets.deleteBackward(socket);
         console.log(`socket disconnected - num sockets connected: ${userSockets.count()}`);
     });
@@ -200,8 +257,14 @@ async function checkUpdateSessionToVoting(sessionId, socket, userSockets) {
         socketError(socket, getErrorMessages(e, "cannot get session from database"));
         return;
     }
+    const socketUsersInSession = [];
+    for(const user of usersInSession){
+        if(userSockets.getForward(user.id)){
+            socketUsersInSession.push(user);
+        }
+    }
     // if all the users in the session have submitted an image
-    if (usersInSession.every((userInSession) => userInSession.image != "")) {
+    if (socketUsersInSession.every((user) => user.image != "")) {
         // get some info from each user to send to all the users
         console.log('all images submitted');
         // get the session that the user is in
@@ -242,8 +305,14 @@ async function checkUpdateSessionToEnded(sessionId, socket, userSockets) {
         socketError(socket, getErrorMessages(e, "cannot get session from database"));
         return;
     }
+    const socketUsersInSession = [];
+    for(const user of usersInSession){
+        if(userSockets.getForward(user.id)){
+            socketUsersInSession.push(user);
+        }
+    }
     // if all the users in the session have submitted a vote
-    if (usersInSession.every((userInSession) => userInSession.vote_for_user_id != "")) {
+    if (socketUsersInSession.every((user) => user.vote_for_user_id != "")) {
         // send the result of the votes to all the users
         console.log("all votes submitted");
         try {

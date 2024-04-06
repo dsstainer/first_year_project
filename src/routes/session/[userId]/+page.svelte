@@ -13,6 +13,7 @@
 	let socket;
 	let error: any;
 	let state = null;
+	let users: any;
 	let getImageBase64: Function;
 	let votes: any;
 	let images:any;
@@ -65,8 +66,14 @@
 
 		socket.on('disconnect', () => {
 			console.log("disconnect");
-			listenToSocket(socket);
+			//listenToSocket(socket);
 		});
+
+		socket.on('user in session disconnected', () => {
+			console.log('disconnected user in session');
+			//check whether our session needs re-updating
+			socket.emit('userId', { userId: data.userId });
+		})
 
 		submitImage = () => {
 			socket.emit('image', getImageBase64());
@@ -89,7 +96,7 @@
 -->
 
 {#if state == 'waiting'}
-	<Waiting numUsers={numUsers}/>
+	<Waiting numUsers={numUsers} />
 {:else if state == 'drawing'}
 <div class='page-container'>
 	<div class='page-title'>

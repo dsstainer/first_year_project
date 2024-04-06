@@ -1,5 +1,6 @@
 <!-- YourComponent.svelte -->
 <script lang="ts">
+	import {onMount} from 'svelte';
 	export let data;
 	export let form;
   
@@ -11,6 +12,11 @@
 	  return url + "/" + formData.id;
 	}
 	$: formLink = createFormLink(form);
+	onMount(() => {
+		if(form != undefined && form != 'session-full'){
+			window.location.href = 'http://'+ window.location.host + formLink;
+		}
+	});
   </script>
   
 <div class='page-container'>
@@ -34,7 +40,7 @@
 			  <input name="nickname" type="text">
 		    </label>
 		    <button>Join Session</button>
-	    
+		
 		</div>
 		</form>
 		{#if form != undefined}

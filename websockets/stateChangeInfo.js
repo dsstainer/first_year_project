@@ -10,7 +10,11 @@ export async function stateChangeToWaitingInfo(sessionId, socket, pb){
         socketError(socket, getErrorMessages(e, "cannot get session from database"));
         return;
     }
-    return {newState:"waiting", numUsers: usersInSession.length};
+    const userInfo = usersInSession.map((userInSession) => ({
+        userId: userInSession.id,
+        userNickname: userInSession.nickname,
+    }));
+    return {newState:"waiting", numUsers: usersInSession.length, users:userInfo};
 }
 export async function stateChangeToDrawingInfo(sessionId, socket, pb) {
     let session;
@@ -61,6 +65,7 @@ export async function stateChageToEndedInfo(sessionId, socket, pb) {
         socketError(socket, getErrorMessages(e, "cannot get session from database"));
         return;
     }
+
     // send the result of the votes to all the users
     let votesForUsers = {};
     for (const userInSession of usersInSession) {
@@ -69,7 +74,9 @@ export async function stateChageToEndedInfo(sessionId, socket, pb) {
     }
     for (const userInSession of usersInSession) {
         //console.log(votesForUsers)
-        votesForUsers[userInSession.vote_for_user_id].votes += 1;
+        if(votesForUsers[userInSession.vote_for_user_id] != undefined){
+            votesForUsers[userInSession.vote_for_user_id].votes += 1;
+        }
     }
     /*
     votesForUsers = {

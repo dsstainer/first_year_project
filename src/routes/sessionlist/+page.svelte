@@ -16,21 +16,22 @@
 	</div>
 	{:else}
 		<ul class='page-content-list'>
+
 		{#each data.sessions as session}
-		<div class='page-content' style='background-color:{session.color}'>
-			<li>
-				<h2>Session ID: {session.id}</h2>
-				<p class='no-margin'>Session State: {session.state}</p>
-				<div class='page-content-list-break'></div>
-				<p class='no-margin'>
-				<a href={`/joinsession?sessionId=${session.id}`}>Press me To Join Session!</a>
-				<button on:click={() => {
-						navigator.clipboard.writeText(window.location.host + `/joinsession?sessionId=${session.id}`);}}>
-					Copy Link
-				</button>
-				</p>
-			</li>
-		</div>
+		{#if session.state == "waiting"}
+			<div class='page-content' style='background-color:{session.color}'>
+				<li>
+					<h2>Session ID: {session.id}</h2>
+					<p class='no-margin'>
+					<a href={`/joinsession?sessionId=${session.id}`}>Press me To Join Session!</a>
+					<button on:click={() => {
+							navigator.clipboard.writeText(window.location.host + `/joinsession?sessionId=${session.id}`);}}>
+						Copy Link
+					</button>
+					</p>
+				</li>
+			</div>
+		{/if}
 		{/each}
 		</ul>
 	{/if}
