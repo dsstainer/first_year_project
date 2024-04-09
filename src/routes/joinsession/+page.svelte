@@ -21,7 +21,7 @@
 	<div class="page-break"></div>
 	<div class="page-content">
 		<div class="page-content-explanation">
-			<p>Please enter a session id and username</p>
+			<p>Please enter a Session ID and Nickname</p>
 		</div>
 		<div class="page-content-break"></div>
 		<form method="POST">
