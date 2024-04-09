@@ -2,7 +2,7 @@
 	// this will be the value returned from the load function in +page.server.ts
 	export let data: { sessions: any[] | null };
 
-	console.log(data);
+	// console.log(data);
 </script>
 
 <div class="page-container">
