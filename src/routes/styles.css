@@ -173,3 +173,7 @@ button:hover:not(:disabled) {
 .error {
 	color: red;
 }
+
+.small-info {
+	font-size: 0.7em;
+}

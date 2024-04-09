@@ -10,6 +10,7 @@ export const load = async (event: PageServerLoadEvent): Promise<{ sessions: any[
             const usersInSession = await event.locals.pb.collection("users").getFullList({
                 filter: `session_id="${session.id}"`
             });
+            session.userNames = usersInSession.map(user => user.nickname);
             session.numUsers = usersInSession.length;
         }
         return { sessions: data };

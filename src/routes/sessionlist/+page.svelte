@@ -19,10 +19,15 @@
 			{#each data.sessions as session}
 				<div class="page-content" style="background-color:{session.color}">
 					<li>
-						<h2>Session ID: {session.id}</h2>
+						<p class="small-info">Session ID: {session.id}</p>
 						<p class="no-margin">Session State: {session.state}</p>
 						<div class="page-content-list-break"></div>
-						<p class="no-margin">
+						<div class="no-margin">
+							<ul class="user-names-list">
+								{#each session.userNames as name}
+									<li class="user-names-list-el">{name}</li>
+								{/each}
+							</ul>
 							{#if session.numUsers <= 3}
 								<a href={`/joinsession?sessionId=${session.id}`} target="_blank">Press me To Join Session!</a>
 								<button
@@ -36,13 +41,27 @@
 								</button>
 							{:else}
 								<div class="page-content-content">
-									<p class="error">Error - there are already 4 users in this session</p>
+									<p class="error">There are already 4 users in this session</p>
 								</div>
 							{/if}
-						</p>
+							</div>
 					</li>
 				</div>
 			{/each}
 		</ul>
 	{/if}
 </div>
+
+<style>
+	.user-names-list {
+		list-style: none;
+		margin: auto;
+		padding: 0;
+		width: min-content;
+	}
+
+	.user-names-list-el {
+		display: inline;
+		margin-right: 1rem;
+	}
+</style>
