@@ -18,6 +18,7 @@
 	let images: any;
 	let imageSubmitted: boolean = false;
 	let numUsers = 1;
+	let userNicknames: any[] = [];
 
 	function setGetImageBase64(newGetImageBase64: Function) {
 		getImageBase64 = newGetImageBase64;
@@ -44,6 +45,8 @@
 			if (stateChange.newState == 'waiting') {
 				state = 'waiting';
 				numUsers = stateChange.numUsers;
+				userNicknames = stateChange.userNicknames;
+				console.log(stateChange.userNicknames);
 			} else if (stateChange.newState == 'drawing') {
 				state = 'drawing';
 				prompt = stateChange.prompt;
@@ -88,7 +91,7 @@
 -->
 
 {#if state == 'waiting'}
-	<Waiting {numUsers} />
+	<Waiting {numUsers} {userNicknames} />
 {:else if state == 'drawing'}
 	<Drawing {setGetImageBase64} {imageSubmitted} {submitImage} {prompt} />
 {:else if state == 'voting'}

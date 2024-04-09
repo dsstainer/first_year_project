@@ -23,13 +23,14 @@
 						<p class="no-margin">Session State: {session.state}</p>
 						<div class="page-content-list-break"></div>
 						<div class="no-margin">
-							<ul class="user-names-list">
-								{#each session.userNames as name}
-									<li class="user-names-list-el">{name}</li>
-								{/each}
-							</ul>
+							<!-- <ul class="user-names-list"> -->
+								<p style="width:fit-content; margin:auto">Current users: {session.userNames.join(", ")}</p>
+
+							<!-- </ul> -->
 							{#if session.numUsers <= 3}
-								<a href={`/joinsession?sessionId=${session.id}`} target="_blank">Press me To Join Session!</a>
+								<a href={`/joinsession?sessionId=${session.id}`} target="_blank"
+									>Press me To Join Session!</a
+								>
 								<button
 									on:click={() => {
 										navigator.clipboard.writeText(
@@ -44,7 +45,7 @@
 									<p class="error">There are already 4 users in this session</p>
 								</div>
 							{/if}
-							</div>
+						</div>
 					</li>
 				</div>
 			{/each}

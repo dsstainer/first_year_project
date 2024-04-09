@@ -10,7 +10,7 @@ export async function stateChangeToWaitingInfo(sessionId, socket, pb){
         socketError(socket, getErrorMessages(e, "cannot get session from database"));
         return;
     }
-    return {newState:"waiting", numUsers: usersInSession.length};
+    return {newState:"waiting", numUsers: usersInSession.length, userNicknames: usersInSession.map(user => user.nickname)};
 }
 export async function stateChangeToDrawingInfo(sessionId, socket, pb) {
     let session;
