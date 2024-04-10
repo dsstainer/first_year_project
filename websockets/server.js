@@ -8,7 +8,7 @@ import bodyParser from 'body-parser';
 import base64Img from 'base64-img';
 import { bothErrors, getErrorMessages, socketError, usersError } from "./errors.js";
 import TwoWayMap from './twowaymap.js';
-import { stateChageToEndedInfo, stateChageToVotingInfo, stateChangeToDrawingInfo, stateChangeToWaitingInfo} from './stateChangeInfo.js';
+import { stateChageToEndedInfo, stateChageToVotingInfo, stateChangeToDrawingInfo, stateChangeToWaitingInfo } from './stateChangeInfo.js';
 
 import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
@@ -94,7 +94,19 @@ io.on('connection', (socket) => {
                 break;
         }
         if (sessionInfoToSend != undefined) {
+            if (session.state == "waiting") {
+                try {
+                    const usersInSession = await pb.collection("users").getFullList({
+                        filter: `session_id = "${sessionId}"`,
+                    });
+                    for (const userInSession of usersInSession) {
+                        userSockets.getForward(userInSession.id).emit("stateChange", sessionInfoToSend);
+                    }
+                } catch (e) {
+                }
+            } else {
                 socket.emit("stateChange", sessionInfoToSend);
+            }
         }
 
         // if the number of users in that session is 4 or more the update the session
@@ -158,10 +170,10 @@ async function checkUpdateSessionToDrawing(sessionId, socket, userSockets) {
     }
     // guard clause such that if there's not enough users then the state will not change
     if (usersInSession.length < 4) {
-        for(const userInSession of usersInSession){
+        for (const userInSession of usersInSession) {
             const userInSessionSocket = userSockets.getForward(userInSession.id);
             if (userInSessionSocket == undefined) continue;
-            userInSessionSocket.emit("stateChange", {newState:"waiting", numUsers:usersInSession.length});
+            userInSessionSocket.emit("stateChange", { newState: "waiting", numUsers: usersInSession.length });
         }
         return;
     }
@@ -256,7 +268,7 @@ async function checkUpdateSessionToEnded(sessionId, socket, userSockets) {
         } catch (e) {
             usersError(usersInSession, getErrorMessages(e, "cannot get session from database"));
         }
-        const stateChangeInfo = await stateChageToEndedInfo(sessionId, socket, pb);        
+        const stateChangeInfo = await stateChageToEndedInfo(sessionId, socket, pb);
         for (const userInSession of usersInSession) {
             const userInSessionSocket = userSockets.getForward(userInSession.id);
             if (userInSessionSocket != null) {
