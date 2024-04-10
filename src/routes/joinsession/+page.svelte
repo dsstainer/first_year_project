@@ -1,10 +1,11 @@
 <!-- YourComponent.svelte -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	export let data;
 	// console.log(data);
 	export let form: any;
 
-	// import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	function createFormLink(formData: any) {
@@ -38,11 +39,15 @@
 	// }
 
 	onMount(() => {
-		const joinSessionLink = document.getElementById('join-session-link');
-		if (joinSessionLink == undefined) {
-			return;
+		// const joinSessionLink = document.getElementById('join-session-link');
+		// if (joinSessionLink == undefined) {
+		// 	return;
+		// }
+		// joinSessionLink.click();
+		if (form != undefined && form != "session-full" && formLink != undefined) {
+			// window.location.href = window.location.protocol + "//" + window.location.host + ""
+			goto(formLink);
 		}
-		joinSessionLink.click();
 	});
 </script>
 
