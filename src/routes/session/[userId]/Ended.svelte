@@ -22,6 +22,7 @@
 
 <div class="ranking-container">
 	<div class="title-row">
+		<div class=title>Nickname</div>
 		<div class="title rank">Ranking</div>
 		<div class="title score">Voting Score</div>
 		<div class="title">Picture Drawn</div>
@@ -31,6 +32,7 @@
 	{:else}
 		{#each orderedVotes.map((value, index) => ({ value, index })) as x}
 			<div class="ranking-item">
+				<div>{x.value.nickname}</div>
 				<div class="rank">
 					{x.index + 1}{x.index == 0 ? 'st' : x.index == 1 ? 'nd' : x.index == 2 ? 'rd' : 'st'}
 				</div>
