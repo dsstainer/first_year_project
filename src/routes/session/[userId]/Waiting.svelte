@@ -12,8 +12,9 @@
 	<div class="page-content">
 		<div class="page-content-explanation">
 			<p>We are waiting for {4 - numUsers} more users</p>
-			<p style="width:fit-content; margin:auto">Current users: {userNicknames.join(", ")}</p>
-
+			{#if userNicknames != undefined}
+				<p style="width:fit-content; margin:auto">Current users: {userNicknames.join(', ')}</p>
+			{/if}
 		</div>
 	</div>
 </div>

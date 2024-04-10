@@ -6,7 +6,7 @@ import cors from 'cors';
 import fs from "fs/promises";
 import bodyParser from 'body-parser';
 import base64Img from 'base64-img';
-import { getErrorMessages, socketError, usersError } from "./errors.js";
+import { bothErrors, getErrorMessages, socketError, usersError } from "./errors.js";
 import TwoWayMap from './twowaymap.js';
 import { stateChageToEndedInfo, stateChageToVotingInfo, stateChangeToDrawingInfo, stateChangeToWaitingInfo} from './stateChangeInfo.js';
 
@@ -49,6 +49,11 @@ io.on('connection', (socket) => {
 
     // when the client sends the userId
     socket.on("userId", async ({ userId }) => {
+        if (userSockets.getForward(userId)) {
+            socketError(socket, bothErrors("this user has already joined"));
+            return;
+        }
+
         // get the user's record from the database
         let sessionId;
         try {

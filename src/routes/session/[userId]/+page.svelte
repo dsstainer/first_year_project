@@ -42,12 +42,14 @@
 		});
 
 		socket.on('stateChange', (stateChange: any) => {
+			console.log(stateChange);
 			if (stateChange.newState == 'waiting') {
 				state = 'waiting';
 				numUsers = stateChange.numUsers;
 				userNicknames = stateChange.userNicknames;
-				console.log(stateChange.userNicknames);
+				// console.log(stateChange.userNicknames);
 			} else if (stateChange.newState == 'drawing') {
+				console.log('changing to drawing');
 				state = 'drawing';
 				prompt = stateChange.prompt;
 			} else if (stateChange.newState == 'voting') {
@@ -67,7 +69,7 @@
 
 		socket.on('disconnect', () => {
 			console.log('disconnect');
-			listenToSocket(socket);
+			// listenToSocket(socket);
 		});
 
 		submitImage = () => {
@@ -90,14 +92,16 @@
 <p>userId: {data.userId}, websockets connected: {wsConnected}, state: {state} </p>
 -->
 
-{#if state == 'waiting'}
-	<Waiting {numUsers} {userNicknames} />
-{:else if state == 'drawing'}
-	<Drawing {setGetImageBase64} {imageSubmitted} {submitImage} {prompt} />
-{:else if state == 'voting'}
-	<Voting {images} {socket} userId={data.userId} />
-{:else if state == 'ended'}
-	<Ended {votes} />
-{:else}
-	<h1>Undefined State</h1>
-{/if}
+{#key state}
+	{#if state == 'waiting'}
+		<Waiting {numUsers} {userNicknames} />
+	{:else if state == 'drawing'}
+		<Drawing {setGetImageBase64} {imageSubmitted} {submitImage} {prompt} />
+	{:else if state == 'voting'}
+		<Voting {images} {socket} userId={data.userId} />
+	{:else if state == 'ended'}
+		<Ended {votes} />
+	{:else}
+		<h1>Undefined State</h1>
+	{/if}
+{/key}

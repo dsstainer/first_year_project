@@ -18,6 +18,13 @@ function sendErrorOverSocket(socket, socketErrorMessage) {
     socket.emit("error", { message: socketErrorMessage });
 }
 
+export function bothErrors(msg) {
+    return {
+        consoleErrorMessage: msg,
+        socketErrorMessage: msg
+    }
+}
+
 export function socketError(socket, { consoleErrorMessage, socketErrorMessage }) {
     consoleSocketError({ consoleErrorMessage, socketErrorMessage });
     sendErrorOverSocket(socket, socketErrorMessage);
