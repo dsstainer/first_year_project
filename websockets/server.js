@@ -33,6 +33,7 @@ const pb = new PocketBase(process.env.POCKETBASE_URL || 'http://localhost:8090/'
 // load all the possible prompts from a file
 // todo: we may generate these in a different way in the future
 const PROMPTS = (await fs.readFile("prompts.txt", "utf-8")).split("\n");
+// const PROMPTS = (await fs.readFile("allwords.txt", "utf-8")).split("\n");
 
 function randomPrompt() {
     return PROMPTS[Math.floor(Math.random() * PROMPTS.length)]
