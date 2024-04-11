@@ -1,3 +1,19 @@
-peanuts
+dog
+cat
 happiness
+sadness
 a good football team
+a funny person
+the best food
+a good TV show
+day
+hot
+fast
+slow
+cold
+delicious
+disgusting
+new
+night
+day
+busy
