@@ -39,6 +39,7 @@ DON'T PUSH THE DATABASE
 - Jiaxing Zheng
 - abdulrahman bamoukrah
 - Yuming Bai
+- Daniel Stainer
 
 to get started, can everyone:
 - clone this repo
